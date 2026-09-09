@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automation-diagram version="1.0" name="Invoice processing">
+  <metadata created-at="2026-09-09T00:00:00.000Z" updated-at="2026-09-09T00:00:00.000Z"/>
+  <description>Document processing and storage</description>
+  <viewport x="80" y="100" zoom="1"/>
+  <settings grid="true" snap="true" gridSize="20"/>
+  <nodes>
+    <node id="agent-1" type="ai-agent" label="Invoice agent"
+          icon="bot" color="#8370ca" system="openai"
+          x="80" y="100" sizeMode="auto">
+      <description>Extract the invoice information.</description>
+      <properties>
+        <property name="model" encoding="json">"GPT-5"</property>
+        <property name="tools" encoding="json">["extract", "validate"]</property>
+      </properties>
+      <ports>
+        <port id="out" direction="output" side="right" semantic="control"/>
+      </ports>
+    </node>
+    <node id="app-1" type="application" label="Store invoice"
+          icon="files" color="#2d938e" system="sharepoint"
+          x="520" y="100" sizeMode="manual" width="240" height="110">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+      </ports>
+    </node>
+  </nodes>
+  <edges>
+    <edge id="connection-1" source="agent-1" sourceHandle="out"
+          target="app-1" targetHandle="in" type="data"
+          label="Invoice data" lineStyle="auto">
+      <properties/>
+    </edge>
+  </edges>
+</automation-diagram>
