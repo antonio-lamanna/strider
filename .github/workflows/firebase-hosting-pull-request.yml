@@ -1,0 +1,48 @@
+name: Preview Strider on Firebase Hosting
+
+on:
+  pull_request:
+
+concurrency:
+  group: firebase-hosting-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build_and_preview:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Strider
+        run: npm run build
+
+      - name: Deploy preview channel
+        if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW != '' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW }}
+          projectId: strider-workflow
+          expires: 7d
+
+      - name: Firebase credentials not configured
+        if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW == '' }}
+        run: echo "::warning::Add the FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW repository secret to enable preview deployments."
