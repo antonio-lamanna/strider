@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.local
+*.tsbuildinfo
+.env*
+!.env.example
+*.zip
+.sites-preview/
+.firebase/
+firebase-debug.log*
