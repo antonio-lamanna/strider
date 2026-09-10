@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { BrandLogo } from "../ui/BrandLogo";
 import {
   ChevronDown,
   Download,
@@ -50,19 +51,9 @@ export function Toolbar(p: Props) {
   }, [exportMenu]);
   return (
     <header className="top-toolbar">
-      <a
-        className="brand"
-        href="#"
-        onClick={(e) => e.preventDefault()}
-        title="Automation Canvas"
-      >
-        <span className="brand-mark">
-          <Icon name="workflow" size={22} />
-        </span>
-        <span>
-          Automation<span className="brand-light">Canvas</span>
-        </span>
-      </a>
+      <div className="brand" title="Strider">
+        <BrandLogo />
+      </div>
       <span className="toolbar-divider name-divider" />
       <div className="diagram-title">
         <input
