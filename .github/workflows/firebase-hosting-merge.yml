@@ -47,3 +47,5 @@ jobs:
       - name: Firebase credentials not configured
         if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW == '' }}
         run: echo "::warning::Add the FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW repository secret to enable deployment."
+
+# Firebase Hosting automation enabled for strider-workflow.
