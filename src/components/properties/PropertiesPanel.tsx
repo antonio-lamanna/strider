@@ -234,7 +234,7 @@ export function PropertiesPanel(p: Props) {
                   {nodeTemplates
                     .filter(
                       (t) =>
-                        t.kind !== "table" && ["group", "system-boundary", "team-boundary"].includes(
+                        t.kind !== "table" && ["group", "system-boundary", "team-boundary", "lane"].includes(
                           t.kind,
                         ) === isContainer(node),
                     )
