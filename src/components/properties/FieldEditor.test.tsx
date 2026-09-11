@@ -1,0 +1,26 @@
+import { act } from 'react';
+import { createRoot } from 'react-dom/client';
+import { it, expect } from 'vitest';
+import { FieldEditor } from './FieldEditor';
+import { createField, withFields } from '../../model/dataModel';
+import { createDiagram, createNode } from '../../model/diagram';
+import { tableTemplate } from '../../config/modules';
+import { serializeDiagram } from '../../services/xmlSerializer';
+import { parseDiagram } from '../../services/xmlParser';
+(globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
+it('selects Standard and Dataverse types through a grouped native menu and preserves XML values', async () => {
+  const field = createField('amount');
+  const container = document.createElement('div'), root = createRoot(container);
+  let changed = [field];
+  await act(async () => root.render(<FieldEditor fields={[field]} onChange={fields => { changed = fields; }}/>));
+  const select = container.querySelector('select')!;
+  expect([...select.querySelectorAll('optgroup')].map(g => g.label)).toEqual(['Standard', 'Dataverse']);
+  expect(container.querySelector('datalist')).toBeNull();
+  await act(async () => { select.value = 'Dataverse: Currency'; select.dispatchEvent(new Event('change', { bubbles: true })); });
+  expect(changed[0].dataType).toBe('Dataverse: Currency');
+  const diagram = createDiagram('data-model'); diagram.nodes = [withFields(createNode(tableTemplate, { x: 0, y: 0 }), changed)];
+  expect(parseDiagram(serializeDiagram(diagram)).nodes[0].data.fields![0].dataType).toBe('Dataverse: Currency');
+  await act(async () => root.render(<FieldEditor fields={[{ ...field, dataType: 'VARCHAR(80)' }]} onChange={() => {}}/>));
+  expect(container.querySelector('select')!.value).toBe('VARCHAR(80)');
+  await act(async () => root.unmount());
+});
