@@ -9,7 +9,8 @@ export function FieldEditor({ fields, onChange }: { fields: DataField[]; onChang
   return <section className="property-section field-editor"><h3>Fields <span>{fields.length}</span></h3>
     {fields.map((f, i) => <div className="field-card" key={f.id}>
       <div className="field-card-heading"><span>{i + 1}</span><input aria-label={`Field ${i + 1} name`} value={f.name} onChange={e => update(f.id, { name: e.target.value })}/><button className="icon-button danger" aria-label={`Delete field ${f.name}`} title="Delete field and its relationships" onClick={() => onChange(fields.filter(n => n.id !== f.id))}><Trash2 size={14}/></button></div>
-      <select className="field-datatype" aria-label={`Data type for ${f.name}`} value={f.dataType} onChange={e => update(f.id, { dataType: e.target.value })}>
+      <label className="datatype-label" htmlFor={`datatype-${f.id}`}>Data type <span>{f.dataType.startsWith('Dataverse: ') ? 'Dataverse' : 'Standard'}</span></label>
+      <select id={`datatype-${f.id}`} className="field-datatype" aria-label={`Data type for ${f.name}`} value={f.dataType} onChange={e => update(f.id, { dataType: e.target.value })}>
         {dataTypeGroups.map(group => <optgroup key={group.label} label={group.label}>{group.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</optgroup>)}
         {!dataTypes.includes(f.dataType) && <optgroup label="Saved custom type"><option value={f.dataType}>{f.dataType || 'Select a data type'}</option></optgroup>}
       </select>

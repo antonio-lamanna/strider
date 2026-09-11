@@ -452,6 +452,7 @@ export function PropertiesPanel(p: Props) {
               )}
             </Section>
             <Section title="Additional properties">
+              <p className="field-hint">Optional metadata saved in XML, such as owner, environment or documentation URL. Leave empty if unused. These values do not execute a workflow.</p>
               <PropertiesEditor
                 key={node.id}
                 value={node.data.properties}
@@ -602,6 +603,7 @@ export function PropertiesPanel(p: Props) {
               })}
             </Section>
             <Section title="Additional properties">
+              <p className="field-hint">Optional metadata saved in XML, such as owner, environment or documentation URL. Leave empty if unused. These values do not execute a workflow.</p>
               <PropertiesEditor
                 key={edge.id}
                 value={edge.data?.properties ?? {}}

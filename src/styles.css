@@ -2014,3 +2014,14 @@ hr {
 .container-node.is-selected, .icon-only-node.is-selected { outline-color: var(--focus); }
 :root[data-theme="dark"] .workflow-node, :root[data-theme="dark"] .table-node { box-shadow: 0 4px 12px #0003; }
 :root[data-theme="dark"] .workflow-node.is-selected, :root[data-theme="dark"] .table-node.is-selected { box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent), 0 4px 12px #0003; }
+
+/* Diagram tabs share the library's restrained active underline. */
+.diagram-tabs { gap: 3px; padding: 0 16px; min-height: 42px; background: var(--surface); }
+.diagram-tab { position: relative; min-height: 42px; border: 0; border-radius: 0; }
+.diagram-tab.active { background: var(--soft); border-color: transparent; box-shadow: none; }
+.diagram-tab.active::after { content: ''; position: absolute; bottom: 0; left: 10px; right: 10px; height: 2px; background: var(--brand-accent); border-radius: 2px; }
+.diagram-tab > button:first-child { padding: 11px 7px 11px 10px; font-size: 12px; }
+.diagram-tab > .close-tab { width: 22px; height: 22px; }
+.datatype-label { display: flex; justify-content: space-between; align-items: center; margin: 9px 0 5px; font-size: 11px; color: var(--muted); }
+.datatype-label > span { font-size: 10px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 4px; }
+.release-version { color: var(--muted); font-size: 10px; white-space: nowrap; }

@@ -17,7 +17,7 @@ export function WorkspaceBar(p: Props) {
       {p.project && <button className="text-button" onClick={p.onSaveProject}><Save size={15}/>Save project XML{p.dirty && <span className="tab-dirty"/>}</button>}
     </div>
     <div className="diagram-tabs" role="tablist" aria-label="Open diagrams">
-      {p.docs.map(d => <div className={`diagram-tab ${d.id === p.active ? 'active' : ''}`} key={d.id}>
+      {p.docs.map(d => <div data-module={d.kind} className={`diagram-tab ${d.id === p.active ? 'active' : ''}`} key={d.id}>
         <button role="tab" aria-selected={d.id === p.active} onClick={() => p.onSelect(d.id)} title={`${modules.find(m => m.kind === d.kind)?.name}: ${d.name}`}>
           <Icon name={modules.find(m => m.kind === d.kind)?.icon ?? 'workflow'} size={15}/><span>{d.name}</span>{p.dirtyDiagram(d.id) && <i className="tab-dirty"/>}
         </button>

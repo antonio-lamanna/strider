@@ -1,3 +1,4 @@
+import release from "../public/version.json";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ReactFlow,
@@ -1302,6 +1303,7 @@ export default function App() {
             Grid {d.settings.gridSize} px · Snap{" "}
             {d.settings.snap ? "on" : "off"}
           </span>
+          <span className="release-version" title="Installed Strider version">v{release.version}</span>
           <span className="author-credit">Created by <a href="https://www.linkedin.com/in/antoniolamanna/" target="_blank" rel="noopener noreferrer">Antonio Lamanna</a></span>
         </footer>
         {importWarnings.length > 0 && <Modal title="SQL import notes" onClose={() => setImportWarnings([])}><p>Tables and supported keys were imported. Review these items:</p><ul>{importWarnings.map((w, i) => <li key={i}>{w}</li>)}</ul><button className="primary-button" onClick={() => setImportWarnings([])}>Done</button></Modal>}
