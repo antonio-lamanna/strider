@@ -251,6 +251,7 @@ export function PropertiesPanel(p: Props) {
             </Section>
             {node.data.kind === "table" && <FieldEditor key={node.id} fields={node.data.fields ?? []} onChange={fields => p.onFields(node.id, fields)}/>}
             <Section title="Appearance">
+              {p.diagram.kind === "architecture" && !isContainer(node) && !isEvent(node) && node.data.kind !== "gateway" && <Field label="Display"><select aria-label="Display mode" value={node.data.displayMode ?? "card"} onChange={e => p.onData(node.id, { displayMode: e.target.value as "card" | "icon" })}><option value="card">Card</option><option value="icon">Icon only</option></select></Field>}
               <Field label="System preset">
                 <select
                   value={node.data.system ?? ""}
@@ -511,6 +512,7 @@ export function PropertiesPanel(p: Props) {
                   )}
                 </select>
               </Field>
+              <Field label="Connection color"><div className="color-field"><input type="color" aria-label="Connection color" value={edge.data?.color ?? "#929eae"} onChange={e => p.onEdge(edge.id, {}, { color: e.target.value })}/><button className="subtle-button" onClick={() => p.onEdge(edge.id, {}, { color: undefined })}>Reset</button></div></Field>
               <Field label="Line style">
                 <select
                   value={edge.data?.lineStyle ?? "auto"}

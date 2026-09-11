@@ -1960,3 +1960,15 @@ hr {
 .field-card .field-datatype:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .field-datatype optgroup { font-weight: 600; color: var(--ink); background: var(--surface); }
 .field-datatype option { font-weight: 400; }
+
+.author-credit { white-space: nowrap; }
+.author-credit a { color: inherit; font-size: inherit; text-decoration: none; }
+.author-credit a:hover { text-decoration: underline; }
+.icon-only-node { position: relative; color: var(--accent); text-align: center; border: 1px solid transparent; border-radius: 10px; }
+.icon-only-node.is-selected { outline: 2px solid var(--focus); }
+.standalone-icon { height: 64px; display: flex; align-items: center; justify-content: center; }
+.standalone-icon img { width: 48px; height: 48px; object-fit: contain; }
+.icon-only-node .symbol-label { color: var(--ink); margin-top: 0; }
+.lane-node { border-style: solid; border-radius: 0; }
+.lane-node .container-heading { position: absolute; left: 0; top: 0; width: 40px; height: 100%; padding: 8px; border-right: 1px solid var(--accent); writing-mode: vertical-rl; transform: rotate(180deg); justify-content: center; }
+.lane-node .container-heading svg { display: none; }

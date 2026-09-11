@@ -32,6 +32,7 @@ import { modules, tableTemplate } from "./config/modules";
 import { useWorkspace } from "./hooks/useWorkspace";
 import { WorkspaceBar } from "./components/toolbar/WorkspaceBar";
 import { parseFile, serializeProject } from "./services/projectXml";
+import { cleanDiagram, fingerprint } from "./model/diagram";
 import { exportExcel } from "./services/excelExport";
 import { createField, withFields, fieldFromHandle } from "./model/dataModel";
 import type { DataField, DiagramKind } from "./model/diagram";
@@ -283,8 +284,40 @@ export default function App() {
       label: workspace.project ? "Remove diagram" : "Close diagram", action, saveAction: () => saveTabCopy(id),
     }); else action();
   }
+  const [arranging, setArranging] = useState(false);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  async function arrange() {
+    const before = ref.current; const original = fingerprint(before); setArranging(true);
+    try { const { arrangeDataModel } = await import("./services/dataLayout"); const next = await arrangeDataModel(before);
+      if (fingerprint(ref.current) !== original) { notify("Diagram changed. Run Auto arrange again."); return; }
+      commit(() => next); requestAnimationFrame(() => requestAnimationFrame(() => void flow.fitView({ padding: 0.2, duration: 300 })));
+      notify("Tables arranged. Undo restores the previous layout.");
+    } catch (e) { setError(e instanceof Error ? e.message : "Layout failed."); } finally { setArranging(false); }
+  }
+  async function exportData(format: "sql" | "json") {
+    try { const content = format === "json" ? JSON.stringify(cleanDiagram(ref.current), null, 2) : (await import("./services/dataSql")).exportMySql(ref.current);
+      downloadBlob(new Blob([content], { type: format === "json" ? "application/json" : "application/sql" }), safeFilename(ref.current.name) + "." + format);
+      notify(format.toUpperCase() + " exported");
+    } catch (e) { setError(e instanceof Error ? e.message : "Export failed."); }
+  }
   async function openFile(file: File) {
     try {
+      if (file.size > 10 * 1024 * 1024) throw new Error("Import supports files up to 10 MB. Export a schema without data for large SQL databases.");
+      if (/\.sql$/i.test(file.name)) {
+        const { importMySql } = await import("./services/dataSql");
+        const { arrangeDataModel } = await import("./services/dataLayout");
+        const imported = importMySql(await file.text(), file.name.replace(/\.sql$/i, ""));
+        const next = await arrangeDataModel(imported.diagram); workspace.add(next, false);
+        requestAnimationFrame(() => requestAnimationFrame(() => void flow.fitView({ padding: 0.2 })));
+        setImportWarnings(imported.warnings); notify("MySQL schema imported"); return;
+      }
+      if (/\.json$/i.test(file.name)) {
+        const raw = JSON.parse(await file.text());
+        if (raw.kind !== "data-model" || !Array.isArray(raw.nodes) || !Array.isArray(raw.edges)) throw new Error("Open a STRIDER data model JSON file.");
+        const result = parseFile(serializeDiagram(raw));
+        if (result.type === "diagram") { workspace.add(result.diagram, true); void flow.setViewport(result.diagram.viewport); }
+        return;
+      }
       const result = parseFile(await file.text());
       if (result.type === "project") {
         const action = () => {
@@ -899,14 +932,18 @@ export default function App() {
           exporting={exporting}
           transparent={transparent}
           onTransparent={setTransparent}
+          onSQL={d.kind === "data-model" ? () => void exportData("sql") : undefined}
+          onJSON={d.kind === "data-model" ? () => void exportData("json") : undefined}
+          onArrange={d.kind === "data-model" ? () => void arrange() : undefined}
+          arranging={arranging}
           onExcel={d.kind === 'data-model' ? () => exportExcel(d) : undefined}
         />
         <WorkspaceBar docs={workspace.docs} active={d.id} project={workspace.project} dirty={workspace.dirty} dirtyDiagram={workspace.dirtyDiagram} onSelect={selectTab} onRemove={closeTab} onNew={() => setNewDialog(true)} onProject={() => openProjectSettings()} onSaveProject={saveProject}/>
         <input
           className="visually-hidden"
           type="file"
-          accept=".xml,application/xml,text/xml"
-          aria-label="Open XML file"
+          accept=".xml,.sql,.json,application/xml,text/xml,application/json,application/sql"
+          aria-label="Open XML, JSON or SQL file"
           ref={fileRef}
           onChange={(e) => {
             const f = e.target.files?.[0];
@@ -1258,7 +1295,9 @@ export default function App() {
             Grid {d.settings.gridSize} px · Snap{" "}
             {d.settings.snap ? "on" : "off"}
           </span>
+          <span className="author-credit">Created by <a href="https://www.linkedin.com/in/antoniolamanna/" target="_blank" rel="noopener noreferrer">Antonio Lamanna</a></span>
         </footer>
+        {importWarnings.length > 0 && <Modal title="SQL import notes" onClose={() => setImportWarnings([])}><p>Tables and supported keys were imported. Review these items:</p><ul>{importWarnings.map((w, i) => <li key={i}>{w}</li>)}</ul><button className="primary-button" onClick={() => setImportWarnings([])}>Done</button></Modal>}
         {newDialog && <Modal title="Create a diagram" onClose={() => setNewDialog(false)}>
           <div className="new-module-list">{modules.map(m => <button key={m.kind} onClick={() => createTab(m.kind)}><Icon name={m.icon} size={24}/><span><strong>{m.name} Designer</strong><small>{m.description}</small></span><Plus size={17}/></button>)}</div>
           <div className="modal-actions"><button className="text-button" onClick={() => { setNewDialog(false); openProjectSettings(false); }}>Create a project</button><button className="secondary-button" onClick={() => setNewDialog(false)}>Cancel</button></div>

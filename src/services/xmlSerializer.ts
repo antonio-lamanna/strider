@@ -58,6 +58,7 @@ export function serializeDiagram(input: Diagram): string {
       width: n.width,
       height: n.height,
       sizeMode: n.data.sizeMode,
+      displayMode: n.data.displayMode,
       parent: n.parentId,
       zIndex: n.zIndex,
     });
@@ -82,7 +83,9 @@ export function serializeDiagram(input: Diagram): string {
       type: e.data?.semantic ?? "control",
       label: e.label ?? "",
       lineStyle: e.data?.lineStyle ?? "auto",
+      color: e.data?.color,
     });
+    if (e.data?.route) append(el, "route", {}, JSON.stringify(e.data.route));
     writeProperties(el, e.data?.properties ?? {});
   });
   // Add indentation as DOM whitespace so arbitrary text/property values remain untouched.

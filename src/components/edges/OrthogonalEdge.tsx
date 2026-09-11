@@ -1,3 +1,5 @@
+import { useNodes } from "@xyflow/react";
+import { routedGeometry } from "../../utils/routes";
 import { memo } from "react";
 import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath } from "@xyflow/react";
 import type { EdgeProps } from "@xyflow/react";
@@ -6,16 +8,17 @@ import { dashPattern } from "../../utils/geometry";
 export const OrthogonalEdge = memo(function OrthogonalEdge(
   p: EdgeProps<DiagramEdge>,
 ) {
-  const [path, x, y] = getSmoothStepPath({
+  const nodes = useNodes<import("../../model/diagram").DiagramNode>();
+  const [path, x, y] = routedGeometry({ ...p, sourceHandle: p.sourceHandleId, targetHandle: p.targetHandleId } as unknown as DiagramEdge, nodes) ?? getSmoothStepPath({
     ...p,
     borderRadius: 12,
     offset: 24,
   });
   const color = p.selected
     ? "var(--focus)"
-    : p.data?.semantic === "exception"
+    : p.data?.color ?? (p.data?.semantic === "exception"
       ? "#c46666"
-      : "var(--edge)";
+      : "var(--edge)");
   const label = [p.label, p.data?.properties.cardinality].filter(Boolean).join(" · ");
   const marker = `arrow-${p.id}`;
   return (

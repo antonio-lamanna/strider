@@ -124,6 +124,7 @@ export const nodeCategories: { name: string; items: NodeTemplate[] }[] = [
   {
     name: "Containers",
     items: [
+      { kind: "lane", label: "Lane", icon: "square-kanban", color: "#8794a6" },
       { kind: "group", label: "Group", icon: "group", color: "#8794a6" },
       {
         kind: "system-boundary",
