@@ -1,4 +1,5 @@
 import {
+  Server, Shield, Network, Monitor, Tablet,
   Activity,
   AppWindow,
   ArrowDownToLine,
@@ -76,6 +77,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 export const icons: Record<string, LucideIcon> = {
+  server: Server, shield: Shield, network: Network, monitor: Monitor, tablet: Tablet, lock: Lock,
   activity: Activity,
   "app-window": AppWindow,
   bot: Bot,

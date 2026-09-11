@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef } from "react";
 import type { CSSProperties } from "react";
+import { architectureCategories, tableTemplate } from "../../config/modules";
+import type { DiagramKind } from "../../model/diagram";
 import { nodeCategories } from "../../config/nodeTypes";
 import { systemPresets } from "../../config/systemPresets";
 import type { NodeTemplate } from "../../model/diagram";
@@ -7,10 +9,12 @@ import { Icon, ChevronDown, Search, X, PanelLeftClose, Plus } from "../ui/Icon";
 const mime = "application/automation-node";
 export { mime as paletteMime };
 export function Palette({
+  kind = "workflow",
   onAdd,
   onDrop,
   onClose,
 }: {
+  kind?: DiagramKind;
   onAdd: (template: NodeTemplate) => void;
   onDrop: (template: NodeTemplate, x: number, y: number) => void;
   onClose: () => void;
@@ -42,7 +46,7 @@ export function Palette({
   const categories = useMemo(
     () =>
       tab === "components"
-        ? nodeCategories
+        ? kind === "architecture" ? architectureCategories : kind === "data-model" ? [{ name: "Data model", items: [tableTemplate] }] : nodeCategories
         : Array.from(new Set(systemPresets.map((p) => p.category))).map(
             (name) => ({
               name,
@@ -60,7 +64,7 @@ export function Palette({
                 ),
             }),
           ),
-    [tab],
+    [tab, kind],
   );
   const filtered = categories
     .map((c) => ({
@@ -84,7 +88,7 @@ export function Palette({
           <PanelLeftClose size={16} />
         </button>
       </div>
-      <div className="palette-tabs" role="tablist" aria-label="Library type">
+      <div style={kind === "data-model" ? { display: "none" } : undefined} className="palette-tabs" role="tablist" aria-label="Library type">
         <button
           role="tab"
           aria-selected={tab === "components"}
@@ -99,7 +103,7 @@ export function Palette({
           className={tab === "systems" ? "active" : ""}
           onClick={() => setTab("systems")}
         >
-          Systems <span>24</span>
+          Systems <span>{systemPresets.length}</span>
         </button>
       </div>
       <div className="palette-search">
@@ -147,7 +151,7 @@ export function Palette({
               <div className="palette-items">
                 {c.items.map((t) => (
                   <button
-                    key={t.system ?? `${t.kind}-${t.subtype ?? ""}`}
+                    key={t.system ?? `${t.kind}-${t.subtype ?? ""}-${t.label}`}
                     className="palette-item"
                     draggable={false}
                     onPointerDown={(e) => {

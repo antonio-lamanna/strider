@@ -3,7 +3,7 @@ import { cleanDiagram } from "../model/diagram";
 
 export function serializeDiagram(input: Diagram): string {
   const d = cleanDiagram(input),
-    doc = document.implementation.createDocument(null, "automation-diagram");
+    doc = document.implementation.createDocument(null, d.kind === "data-model" ? "data-model-diagram" : d.kind === "architecture" ? "architecture-diagram" : "automation-diagram");
   const root = doc.documentElement;
   const append = (
     parent: Element,
@@ -20,6 +20,7 @@ export function serializeDiagram(input: Diagram): string {
     return e;
   };
   root.setAttribute("version", d.version);
+  root.setAttribute("id", d.id);
   root.setAttribute("name", d.name);
   append(root, "metadata", {
     "created-at": d.createdAt,
@@ -61,6 +62,11 @@ export function serializeDiagram(input: Diagram): string {
       zIndex: n.zIndex,
     });
     append(e, "description", {}, n.data.description);
+    if (n.data.customIcon) append(e, "custom-icon", {}, n.data.customIcon);
+    if (n.data.fields) {
+      const fields = append(e, "fields");
+      n.data.fields.forEach(f => append(fields, "field", { ...f }));
+    }
     writeProperties(e, n.data.properties);
     const ports = append(e, "ports");
     n.data.ports.forEach((p) => append(ports, "port", { ...p }));

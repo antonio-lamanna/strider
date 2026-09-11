@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<architecture-diagram version="1.0" id="3be74e56-db6d-48e1-88db-895d9f17d627" name="Hybrid application architecture">
+  <metadata created-at="2026-09-11T08:49:56.748Z" updated-at="2026-09-11T08:49:56.748Z"/>
+  <description/>
+  <viewport x="0" y="0" zoom="1"/>
+  <settings grid="true" snap="true" gridSize="20"/>
+  <nodes>
+    <node id="1662cbaf-ed40-486e-b658-4503c69af486" type="system-boundary" label="Client network" icon="globe" color="#5f7ec7" x="40" y="80" width="420" height="330" sizeMode="manual" zIndex="-10">
+      <description/>
+      <properties/>
+      <ports/>
+    </node>
+    <node id="06c89b92-d32f-4c0a-a633-99135fc066cc" type="group" label="Microsoft Azure" icon="cloud" color="#5f8bc7" x="620" y="80" width="510" height="330" sizeMode="manual" zIndex="-10">
+      <description/>
+      <properties/>
+      <ports/>
+    </node>
+    <node id="056d4ec2-0ebe-47cd-a40c-24422db971f3" type="application" label="Citrix" icon="monitor" color="#557f9c" x="60" y="120" sizeMode="auto" parent="1662cbaf-ed40-486e-b658-4503c69af486">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="c0c65882-b5dc-43f6-97f3-1853f65f38f8" type="application" label="Power Platform" system="power-platform" icon="layers" color="#8370ca" x="70" y="100" sizeMode="auto" parent="06c89b92-d32f-4c0a-a633-99135fc066cc">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="abc8b869-4493-46aa-b98e-015bb5f3eb0a" type="database" label="Dataverse" icon="database" color="#609b86" x="70" y="220" sizeMode="auto" parent="06c89b92-d32f-4c0a-a633-99135fc066cc">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+  </nodes>
+  <edges>
+    <edge id="vpn" source="056d4ec2-0ebe-47cd-a40c-24422db971f3" target="c0c65882-b5dc-43f6-97f3-1853f65f38f8" sourceHandle="out" targetHandle="in" type="resource" label="VPN · HTTPS" lineStyle="dashed">
+      <properties/>
+    </edge>
+    <edge id="data" source="c0c65882-b5dc-43f6-97f3-1853f65f38f8" target="abc8b869-4493-46aa-b98e-015bb5f3eb0a" sourceHandle="out-bottom" targetHandle="in-top" type="data" label="Data" lineStyle="solid">
+      <properties/>
+    </edge>
+  </edges>
+</architecture-diagram>

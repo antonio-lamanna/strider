@@ -14,6 +14,9 @@ import {
   Icon,
 } from "../ui/Icon";
 interface Props {
+  transparent: boolean;
+  onTransparent: (v: boolean) => void;
+  onExcel?: () => void;
   name: string;
   dirty: boolean;
   onName: (v: string) => void;
@@ -119,6 +122,8 @@ export function Toolbar(p: Props) {
           </button>
           {exportMenu && (
             <div className="dropdown export-menu">
+              <label className="export-option"><input type="checkbox" checked={p.transparent} onChange={e => p.onTransparent(e.target.checked)}/>Transparent background</label>
+              {p.onExcel && <button onClick={() => { p.onExcel?.(); setExportMenu(false); }}><Icon name="database" size={16}/><span>Export Excel<small>Tables, fields and relationships</small></span></button>}
               <button
                 onClick={() => {
                   p.onExport("png");
