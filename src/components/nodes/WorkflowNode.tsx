@@ -6,6 +6,7 @@ import type { NodeProps } from "@xyflow/react";
 import type { DiagramNode } from "../../model/diagram";
 import { nodeLayout, sidePosition } from "../../utils/geometry";
 import { Icon } from "../ui/Icon";
+import { NodeIcon } from "../ui/NodeIcon";
 import { useEditorActions } from "../canvas/EditorContext";
 
 const NormalWorkflowNode = memo(function NormalWorkflowNode(
@@ -71,12 +72,12 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
           className="container-heading"
           onDoubleClick={() => actions.editNode(id)}
         >
-          {data.customIcon ? <img className="custom-node-icon" src={data.customIcon} alt=""/> : <Icon name={data.icon} size={16} />}
+          <NodeIcon data={data} size={16} />
           <span>{data.label}</span>
         </div>
       </div>
     );
-  if (data.displayMode === "icon" && !layout.event && !layout.gateway) return <div className={`icon-only-node ${selected ? "is-selected" : ""}`} style={style} onDoubleClick={() => actions.editNode(id)}><div className="standalone-icon">{data.customIcon ? <img src={data.customIcon} alt=""/> : <Icon name={data.icon} size={48}/>}</div><div className="symbol-label">{layout.labelLines.map((line, i) => <div key={i}>{line}</div>)}</div>{handles}</div>;
+  if (data.displayMode === "icon" && !layout.event && !layout.gateway) return <div className={`icon-only-node ${selected ? "is-selected" : ""}`} style={style} onDoubleClick={() => actions.editNode(id)}><div className="standalone-icon"><NodeIcon data={data} size={48}/></div><div className="symbol-label">{layout.labelLines.map((line, i) => <div key={i}>{line}</div>)}</div>{handles}</div>;
   if (layout.event || layout.gateway)
     return (
       <div
@@ -122,7 +123,7 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
       <div className="node-inner">
         <div className="node-main">
           <span className="node-icon">
-            {data.customIcon ? <img className="custom-node-icon" src={data.customIcon} alt=""/> : <Icon name={data.icon} size={18} />}
+            <NodeIcon data={data} size={18} />
           </span>
           <div className="node-text">
             <div className="node-label">

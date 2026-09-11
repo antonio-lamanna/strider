@@ -1,3 +1,14 @@
+# STRIDER 1.2.0
+
+## Product icons and visual refinement
+
+- Library Standard/Product switches the catalogue and the default for newly created compatible elements. It never restyles existing nodes. The preference is local, like the theme.
+- Inspector → Appearance → Icon mode applies only to the selected element. Existing system IDs remain the identity; iconMode is optional and defaults to Standard for older files. XML, project XML, JSON and image exports preserve the selected presentation. Custom uploaded icons keep priority; unknown/unavailable products use the original generic symbol.
+- 37 bundled product icons: 16 selected Simple Icons 16.30.0 imports and 21 unchanged official Microsoft SVG assets (Power Platform, Dynamics 365, Azure, Power BI and Fabric). Search supports product aliases and vendor/category terms. The existing 64 Standard presets and generic icon mappings are preserved.
+- Icons & credits in Help includes source links, trademark notices and a local license/source inventory. Product images do not require runtime requests to vendor servers.
+- Refined neutral light/dark surfaces, warm accent controls, panel inputs, tabs, cards, canvas breadcrumb and floating tools based on the supplied mockups. Original STRIDER logo, node geometry, navigation and connector semantics remain unchanged.
+- Validation: 29 tests, TypeScript and production build; browser checks for mixed modes, legacy XML, undo/redo, dragging, resizing, zoom/pan, three designers, responsive panels and PNG export.
+
 # STRIDER 1.1.0
 
 ## Diagram editing

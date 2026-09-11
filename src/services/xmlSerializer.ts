@@ -59,6 +59,7 @@ export function serializeDiagram(input: Diagram): string {
       height: n.height,
       sizeMode: n.data.sizeMode,
       displayMode: n.data.displayMode,
+      iconMode: n.data.iconMode,
       parent: n.parentId,
       zIndex: n.zIndex,
     });

@@ -206,6 +206,9 @@ export function parseDiagram(xml: string): Diagram {
         ports,
       },
     };
+    const iconMode = el.getAttribute("iconMode");
+    if (iconMode && !["standard", "product"].includes(iconMode)) throw new Error("Invalid icon mode.");
+    if (iconMode) n.data.iconMode = iconMode as "standard" | "product";
     const displayMode = el.getAttribute("displayMode");
     if (displayMode && !["card", "icon"].includes(displayMode)) throw new Error("Invalid display mode.");
     if (displayMode) n.data.displayMode = displayMode as "card" | "icon";

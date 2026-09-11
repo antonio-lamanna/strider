@@ -99,6 +99,9 @@ type PendingAction = {
   action: () => void;
   saveAction?: () => boolean;
 };
+import { loadIconMode, newNodeIconMode, saveIconMode } from "./config/productIcons";
+import { IconCredits } from "./components/ui/IconCredits";
+
 function loadTheme() {
   try {
     return localStorage.getItem("automation-canvas-theme") === "dark";
@@ -111,6 +114,8 @@ export default function App() {
   const history = useDiagramHistory(),
     { diagram: d, ref, commit, replace, begin, end } = history;
   const workspace = useWorkspace(history);
+  const [iconMode, setIconMode] = useState(loadIconMode);
+  useEffect(() => saveIconMode(iconMode), [iconMode]);
   const [newDialog, setNewDialog] = useState(false);
   const [projectDialog, setProjectDialog] = useState(false);
   const [projectMode, setProjectMode] = useState<'create' | 'edit'>('create');
@@ -597,7 +602,7 @@ export default function App() {
       position.x = Math.round(position.x / grid) * grid;
       position.y = Math.round(position.y / grid) * grid;
     }
-    let n = createNode(template, position);
+    let n = createNode(newNodeIconMode(template, iconMode), position);
     if (template.kind === "table") {
       const id = { ...createField("id"), dataType: "UUID", primaryKey: true, nullable: false };
       n = withFields(n, [id]);
@@ -954,6 +959,8 @@ export default function App() {
         <main className="editor-workspace">
           {leftOpen && (
             <Palette key={d.kind}
+              iconMode={iconMode}
+              onIconMode={setIconMode}
               kind={d.kind}
               onAdd={add}
               onDrop={(template, x, y) => {
@@ -1532,6 +1539,7 @@ export default function App() {
                 </div>
               ))}
             </div>
+            <IconCredits />
             <p className="help-footnote">
               Use Ctrl in place of ⌘ on Windows and Linux. Shift-drag creates a
               selection. Ctrl/⌘-click adds to a selection. Move a component

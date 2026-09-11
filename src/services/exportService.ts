@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Diagram, DiagramNode } from "../model/diagram";
+import { productIconUri, productIconNeedsBackdrop } from "../config/productIcons";
 import { Icon } from "../components/ui/Icon";
 import {
   absolutePosition,
@@ -41,7 +42,7 @@ const text = (
   x: number,
   y: number,
   size = 14,
-  color = "#303847",
+  color = "#25272b",
   anchor = "start",
   weight = 500,
 ) =>
@@ -53,23 +54,23 @@ const icon = (
   size: number,
   color: string,
 ) =>
-  name.startsWith('data:image/') ? `<image x="${x}" y="${y}" width="${size}" height="${size}" href="${escape(name)}" xlink:href="${escape(name)}"/>` : `<g transform="translate(${x} ${y})" color="${color}">${renderToStaticMarkup(createElement(Icon, { name, size }))}</g>`;
+  name.startsWith('data:image/') ? `${productIconNeedsBackdrop(name) ? `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="3" fill="#fff"/>` : ""}<image x="${x}" y="${y}" width="${size}" height="${size}" href="${escape(name)}" xlink:href="${escape(name)}"/>` : `<g transform="translate(${x} ${y})" color="${color}">${renderToStaticMarkup(createElement(Icon, { name, size }))}</g>`;
 export function buildSvg(
   d: Diagram,
   dark = false,
   transparent = true,
 ): { svg: string; width: number; height: number } {
   const b = diagramBounds(d.nodes, d.edges),
-    bg = dark ? "#191d25" : "#f8fafb",
-    surface = dark ? "#242a34" : "#ffffff",
-    border = dark ? "#454e5c" : "#d9dfe6",
-    ink = dark ? "#e9edf4" : "#303847",
-    muted = dark ? "#a4afbe" : "#818b9a";
+    bg = dark ? "#0d0f11" : "#f7f7f6",
+    surface = dark ? "#1b1e21" : "#ffffff",
+    border = dark ? "#3d4249" : "#d9dad8",
+    ink = dark ? "#eff0f2" : "#25272b",
+    muted = dark ? "#a5aab3" : "#818b9a";
   const groupXml = (n: DiagramNode) => {
     const at = absolutePosition(n, d.nodes),
       s = nodeLayout(n);
     if (n.data.kind === "lane") return `<g transform="translate(${at.x} ${at.y})"><rect width="${s.width}" height="${s.height}" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}"/><path d="M40 0V${s.height}" stroke="${n.data.color}"/><g transform="translate(25 ${s.height / 2}) rotate(-90)">${text(n.data.label, 0, 0, 12, muted, "middle")}</g></g>`;
-    return `<g transform="translate(${at.x} ${at.y})"><rect x="0" y="0" width="${s.width}" height="${s.height}" rx="12" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}" stroke-opacity=".5" stroke-dasharray="6 5"/><path d="M0 39H${s.width}" stroke="${n.data.color}" stroke-opacity=".15"/>${icon(n.data.customIcon || n.data.icon, 14, 11, 17, n.data.color)}${text(n.data.label, 39, 25, 12, muted)}</g>`;
+    return `<g transform="translate(${at.x} ${at.y})"><rect x="0" y="0" width="${s.width}" height="${s.height}" rx="12" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}" stroke-opacity=".5" stroke-dasharray="6 5"/><path d="M0 39H${s.width}" stroke="${n.data.color}" stroke-opacity=".15"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, 14, 11, 17, n.data.color)}${text(n.data.label, 39, 25, 12, muted)}</g>`;
   };
   const nodeXml = (n: DiagramNode, index: number) => {
     const at = absolutePosition(n, d.nodes),
@@ -78,17 +79,17 @@ export function buildSvg(
       clip = "clip-" + index;
     let body = "";
     if (n.data.kind === "table") {
-      body = `<rect width="${s.width}" height="${s.height}" rx="10" fill="${surface}" stroke="${border}"/><path d="M0 48H${s.width}" stroke="${border}"/>${icon('database', 14, 15, 17, c)}${text(n.data.label, 40, 29, 14, ink)}`;
+      body = `<rect width="${s.width}" height="${s.height}" rx="12" fill="${surface}" stroke="${border}"/><path d="M0 48H${s.width}" stroke="${border}"/>${icon('database', 14, 15, 17, c)}${text(n.data.label, 40, 29, 14, ink)}`;
       (n.data.fields ?? []).forEach((f, i) => {
         const y = 48 + i * 32;
         body += `<path d="M0 ${y + 32}H${s.width}" stroke="${border}" stroke-opacity=".5"/>${text(f.primaryKey ? 'PK' : f.foreignKey ? 'FK' : '·', 13, y + 21, 11, f.primaryKey ? '#b18c3e' : c)}${text(f.name + (!f.nullable ? ' *' : '') + (f.primaryKey && f.foreignKey ? ' FK' : ''), 42, y + 21, 13, ink)}${text(f.dataType, s.width - 14, y + 21, 12, muted, 'end', 400)}`;
       });
     } else if (n.data.displayMode === "icon" && !s.event && !s.gateway) {
-      body = icon(n.data.customIcon || n.data.icon, (s.width - 48) / 2, 6, 48, c);
+      body = icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, (s.width - 48) / 2, 6, 48, c);
       s.labelLines.forEach((line, i) => body += text(line, s.width / 2, 78 + i * 19, 14, ink, "middle"));
     } else if (s.event) {
       const cx = s.width / 2;
-      body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.customIcon || n.data.icon, cx - 8, 14, 16, c)}`;
+      body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, cx - 8, 14, 16, c)}`;
       s.labelLines.forEach(
         (l, i) => (body += text(l, cx, 66 + i * 19, 14, ink, "middle")),
       );
@@ -100,7 +101,7 @@ export function buildSvg(
       );
     } else {
       const rowHeight = s.height - (n.data.kind === "ai-agent" ? 37 : 0);
-      body = `<defs><clipPath id="${clip}"><rect x="1" y="1" width="${s.width - 2}" height="${s.height - 2}" rx="9"/></clipPath></defs><rect width="${s.width}" height="${s.height}" rx="10" fill="${surface}" stroke="${border}"/><g clip-path="url(#${clip})"><path d="M1 10V${s.height - 10}" stroke="${c}" stroke-width="5"/><rect x="14" y="${Math.max(12, (rowHeight - 32) / 2)}" width="32" height="32" rx="8" fill="${c}" fill-opacity=".10"/>${icon(n.data.customIcon || n.data.icon, 21, Math.max(12, (rowHeight - 32) / 2) + 7, 18, c)}`;
+      body = `<defs><clipPath id="${clip}"><rect x="1" y="1" width="${s.width - 2}" height="${s.height - 2}" rx="9"/></clipPath></defs><rect width="${s.width}" height="${s.height}" rx="12" fill="${surface}" stroke="${border}"/><g clip-path="url(#${clip})"><path d="M1 10V${s.height - 10}" stroke="${c}" stroke-width="5"/><rect x="14" y="${Math.max(12, (rowHeight - 32) / 2)}" width="32" height="32" rx="8" fill="${c}" fill-opacity=".10"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, 21, Math.max(12, (rowHeight - 32) / 2) + 7, 18, c)}`;
       s.labelLines.forEach(
         (l, i) => (body += text(l, 57, 28 + i * 20, 14, ink)),
       );

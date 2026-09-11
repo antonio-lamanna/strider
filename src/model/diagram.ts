@@ -8,6 +8,7 @@ export type JsonValue =
   | null
   | JsonValue[]
   | { [key: string]: JsonValue };
+export type IconMode = "standard" | "product";
 export type DiagramKind = "workflow" | "data-model" | "architecture";
 export type NodeKind =
   | "lane"
@@ -70,6 +71,7 @@ export interface DataField {
 export interface WorkflowNodeData extends Record<string, unknown> {
   fields?: DataField[];
   customIcon?: string;
+  iconMode?: IconMode;
   displayMode?: "card" | "icon";
   kind: NodeKind;
   subtype?: string;
@@ -107,6 +109,7 @@ export interface Diagram {
 export type NodeTemplate = {
   fields?: DataField[];
   customIcon?: string;
+  iconMode?: IconMode;
   displayMode?: "card" | "icon";
   kind: NodeKind;
   label: string;

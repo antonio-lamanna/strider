@@ -51,8 +51,8 @@ describe('Strider project interchange', () => {
     const d = moduleExample('architecture');
     d.nodes[2].data.customIcon = 'data:image/png;base64,iVBORw0KGgo=';
     const a = buildSvg(d), b = buildSvg(d, false, false);
-    expect(a.svg).not.toContain('fill="#f8fafb"');
-    expect(b.svg).toContain('fill="#f8fafb"');
+    expect(a.svg).not.toContain('fill="#f7f7f6"');
+    expect(b.svg).toContain('fill="#f7f7f6"');
     expect(a.svg).toContain('<image'); expect(a.svg).toContain(d.nodes[2].data.customIcon);
   });
 });
