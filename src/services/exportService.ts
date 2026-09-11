@@ -53,10 +53,11 @@ const icon = (
   size: number,
   color: string,
 ) =>
-  `<g transform="translate(${x} ${y})" color="${color}">${renderToStaticMarkup(createElement(Icon, { name, size }))}</g>`;
+  name.startsWith('data:image/') ? `<image x="${x}" y="${y}" width="${size}" height="${size}" href="${escape(name)}" xlink:href="${escape(name)}"/>` : `<g transform="translate(${x} ${y})" color="${color}">${renderToStaticMarkup(createElement(Icon, { name, size }))}</g>`;
 export function buildSvg(
   d: Diagram,
   dark = false,
+  transparent = true,
 ): { svg: string; width: number; height: number } {
   const b = diagramBounds(d.nodes, d.edges),
     bg = dark ? "#191d25" : "#f8fafb",
@@ -67,7 +68,7 @@ export function buildSvg(
   const groupXml = (n: DiagramNode) => {
     const at = absolutePosition(n, d.nodes),
       s = nodeLayout(n);
-    return `<g transform="translate(${at.x} ${at.y})"><rect x="0" y="0" width="${s.width}" height="${s.height}" rx="12" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}" stroke-opacity=".5" stroke-dasharray="6 5"/><path d="M0 39H${s.width}" stroke="${n.data.color}" stroke-opacity=".15"/>${icon(n.data.icon, 14, 11, 17, n.data.color)}${text(n.data.label, 39, 25, 12, muted)}</g>`;
+    return `<g transform="translate(${at.x} ${at.y})"><rect x="0" y="0" width="${s.width}" height="${s.height}" rx="12" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}" stroke-opacity=".5" stroke-dasharray="6 5"/><path d="M0 39H${s.width}" stroke="${n.data.color}" stroke-opacity=".15"/>${icon(n.data.customIcon || n.data.icon, 14, 11, 17, n.data.color)}${text(n.data.label, 39, 25, 12, muted)}</g>`;
   };
   const nodeXml = (n: DiagramNode, index: number) => {
     const at = absolutePosition(n, d.nodes),
@@ -75,9 +76,15 @@ export function buildSvg(
       c = n.data.color,
       clip = "clip-" + index;
     let body = "";
-    if (s.event) {
+    if (n.data.kind === "table") {
+      body = `<rect width="${s.width}" height="${s.height}" rx="10" fill="${surface}" stroke="${border}"/><path d="M0 48H${s.width}" stroke="${border}"/>${icon('database', 14, 15, 17, c)}${text(n.data.label, 40, 29, 14, ink)}`;
+      (n.data.fields ?? []).forEach((f, i) => {
+        const y = 48 + i * 32;
+        body += `<path d="M0 ${y + 32}H${s.width}" stroke="${border}" stroke-opacity=".5"/>${text(f.primaryKey ? 'PK' : f.foreignKey ? 'FK' : '·', 13, y + 21, 11, f.primaryKey ? '#b18c3e' : c)}${text(f.name + (!f.nullable ? ' *' : '') + (f.primaryKey && f.foreignKey ? ' FK' : ''), 42, y + 21, 13, ink)}${text(f.dataType, s.width - 14, y + 21, 12, muted, 'end', 400)}`;
+      });
+    } else if (s.event) {
       const cx = s.width / 2;
-      body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.icon, cx - 8, 14, 16, c)}`;
+      body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.customIcon || n.data.icon, cx - 8, 14, 16, c)}`;
       s.labelLines.forEach(
         (l, i) => (body += text(l, cx, 66 + i * 19, 14, ink, "middle")),
       );
@@ -89,7 +96,7 @@ export function buildSvg(
       );
     } else {
       const rowHeight = s.height - (n.data.kind === "ai-agent" ? 37 : 0);
-      body = `<defs><clipPath id="${clip}"><rect x="1" y="1" width="${s.width - 2}" height="${s.height - 2}" rx="9"/></clipPath></defs><rect width="${s.width}" height="${s.height}" rx="10" fill="${surface}" stroke="${border}"/><g clip-path="url(#${clip})"><path d="M1 10V${s.height - 10}" stroke="${c}" stroke-width="5"/><rect x="14" y="${Math.max(12, (rowHeight - 32) / 2)}" width="32" height="32" rx="8" fill="${c}" fill-opacity=".10"/>${icon(n.data.icon, 21, Math.max(12, (rowHeight - 32) / 2) + 7, 18, c)}`;
+      body = `<defs><clipPath id="${clip}"><rect x="1" y="1" width="${s.width - 2}" height="${s.height - 2}" rx="9"/></clipPath></defs><rect width="${s.width}" height="${s.height}" rx="10" fill="${surface}" stroke="${border}"/><g clip-path="url(#${clip})"><path d="M1 10V${s.height - 10}" stroke="${c}" stroke-width="5"/><rect x="14" y="${Math.max(12, (rowHeight - 32) / 2)}" width="32" height="32" rx="8" fill="${c}" fill-opacity=".10"/>${icon(n.data.customIcon || n.data.icon, 21, Math.max(12, (rowHeight - 32) / 2) + 7, 18, c)}`;
       s.labelLines.forEach(
         (l, i) => (body += text(l, 57, 28 + i * 20, 14, ink)),
       );
@@ -137,13 +144,13 @@ export function buildSvg(
               ? "#8995a6"
               : "#929eae",
         dash = dashPattern(e.data?.semantic ?? "control", e.data?.lineStyle),
-        label = String(e.label ?? ""),
+        label = [e.label, e.data?.properties.cardinality].filter(Boolean).join(" · "),
         w = textWidth(label, 12, 400) + 16;
       return `<defs><marker id="arrow-${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1L9 5L1 9Z" fill="${c}"/></marker></defs><path d="${g[0]}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""} marker-end="url(#arrow-${i})"/>${label ? `<rect x="${g[1] - w / 2}" y="${g[2] - 12}" width="${w}" height="24" rx="5" fill="${surface}" stroke="${border}"/>${text(label, g[1], g[2] + 4, 12, muted, "middle", 400)}` : ""}`;
     })
     .join("");
   const ordered = sortParentsFirst(d.nodes);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${Math.ceil(b.width)}" height="${Math.ceil(b.height)}" viewBox="${b.x} ${b.y} ${b.width} ${b.height}"><title>${escape(d.name)}</title><desc>${escape(d.description)}</desc><rect x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" fill="${bg}"/>${ordered.filter(isContainer).map(groupXml).join("")}${edges}${ordered
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${Math.ceil(b.width)}" height="${Math.ceil(b.height)}" viewBox="${b.x} ${b.y} ${b.width} ${b.height}"><title>${escape(d.name)}</title><desc>${escape(d.description)}</desc>${transparent ? "" : `<rect x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" fill="${bg}"/>`}${ordered.filter(isContainer).map(groupXml).join("")}${edges}${ordered
     .filter((n) => !isContainer(n))
     .sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0))
     .map(nodeXml)
@@ -154,8 +161,9 @@ export async function exportDiagram(
   d: Diagram,
   format: "svg" | "png",
   dark = false,
+  transparent = true,
 ) {
-  const { svg, width, height } = buildSvg(d, dark),
+  const { svg, width, height } = buildSvg(d, dark, transparent),
     blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   if (format === "svg") {
     downloadBlob(blob, safeFilename(d.name) + ".svg");

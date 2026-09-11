@@ -49,6 +49,11 @@ export function nodeLayout(n: DiagramNode) {
   const group = isContainer(n),
     event = isEvent(n),
     gateway = n.data.kind === "gateway";
+  if (n.data.kind === "table") {
+    const fields = n.data.fields ?? [];
+    const natural = Math.max(280, textWidth(n.data.label) + 75, ...fields.map(f => textWidth(f.name + f.dataType, 13) + 110));
+    return { width: n.data.sizeMode === "manual" ? Math.max(260, n.width ?? natural) : Math.min(620, natural), height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, 48 + Math.max(1, fields.length) * 32 + 4), labelLines: [n.data.label], descriptionLines: [], group, event, gateway };
+  }
   if (group)
     return {
       width: n.width ?? 520,
@@ -214,6 +219,10 @@ export function portAnchor(
   const sameSide = n.data.ports.filter((p) => p.side === port.side),
     fraction =
       (sameSide.findIndex((p) => p.id === port.id) + 1) / (sameSide.length + 1);
+  if (n.data.kind === "table") {
+    const index = (n.data.fields ?? []).findIndex(f => `${f.id}:in` === portId || `${f.id}:out` === portId);
+    return { x: at.x + (direction === "input" ? 0 : layout.width), y: at.y + 48 + Math.max(0, index) * 32 + 16, position: direction === "input" ? Position.Left : Position.Right };
+  }
   const core = layout.event ? 44 : layout.gateway ? 56 : 0;
   const w = core || layout.width,
     h = core || layout.height,

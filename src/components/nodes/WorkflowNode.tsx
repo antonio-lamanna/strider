@@ -1,3 +1,4 @@
+import { TableNode } from "./TableNode";
 import { memo, useEffect } from "react";
 import type { CSSProperties } from "react";
 import { Handle, NodeResizer, useUpdateNodeInternals } from "@xyflow/react";
@@ -7,7 +8,7 @@ import { nodeLayout, sidePosition } from "../../utils/geometry";
 import { Icon } from "../ui/Icon";
 import { useEditorActions } from "../canvas/EditorContext";
 
-export const WorkflowNode = memo(function WorkflowNode(
+const NormalWorkflowNode = memo(function NormalWorkflowNode(
   props: NodeProps<DiagramNode>,
 ) {
   const { id, data, selected, width, height } = props;
@@ -70,7 +71,7 @@ export const WorkflowNode = memo(function WorkflowNode(
           className="container-heading"
           onDoubleClick={() => actions.editNode(id)}
         >
-          <Icon name={data.icon} size={16} />
+          {data.customIcon ? <img className="custom-node-icon" src={data.customIcon} alt=""/> : <Icon name={data.icon} size={16} />}
           <span>{data.label}</span>
         </div>
       </div>
@@ -120,7 +121,7 @@ export const WorkflowNode = memo(function WorkflowNode(
       <div className="node-inner">
         <div className="node-main">
           <span className="node-icon">
-            <Icon name={data.icon} size={18} />
+            {data.customIcon ? <img className="custom-node-icon" src={data.customIcon} alt=""/> : <Icon name={data.icon} size={18} />}
           </span>
           <div className="node-text">
             <div className="node-label">
@@ -149,3 +150,5 @@ export const WorkflowNode = memo(function WorkflowNode(
     </div>
   );
 });
+
+export const WorkflowNode = memo(function WorkflowNode(props: NodeProps<DiagramNode>) { return props.data.kind === "table" ? <TableNode {...props}/> : <NormalWorkflowNode {...props}/>; });

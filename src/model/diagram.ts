@@ -8,7 +8,9 @@ export type JsonValue =
   | null
   | JsonValue[]
   | { [key: string]: JsonValue };
+export type DiagramKind = "workflow" | "data-model" | "architecture";
 export type NodeKind =
+  | "table"
   | "start"
   | "end"
   | "event"
@@ -53,7 +55,20 @@ export interface Port {
   semantic: EdgeSemantic;
   label?: string;
 }
+export interface DataField {
+  id: string;
+  name: string;
+  dataType: string;
+  primaryKey: boolean;
+  foreignKey: boolean;
+  nullable: boolean;
+  unique: boolean;
+  defaultValue: string;
+  description: string;
+}
 export interface WorkflowNodeData extends Record<string, unknown> {
+  fields?: DataField[];
+  customIcon?: string;
   kind: NodeKind;
   subtype?: string;
   label: string;
@@ -73,6 +88,8 @@ export interface WorkflowEdgeData extends Record<string, unknown> {
 export type DiagramNode = Node<WorkflowNodeData, "workflow" | "container">;
 export type DiagramEdge = Edge<WorkflowEdgeData, "orthogonal">;
 export interface Diagram {
+  id: string;
+  kind: DiagramKind;
   version: "1.0";
   name: string;
   description: string;
@@ -81,9 +98,11 @@ export interface Diagram {
   nodes: DiagramNode[];
   edges: DiagramEdge[];
   viewport: Viewport;
-  settings: { grid: boolean; snap: boolean; gridSize: number };
+  settings: { grid: boolean; snap: boolean; gridSize: number; gridColor?: string };
 }
 export type NodeTemplate = {
+  fields?: DataField[];
+  customIcon?: string;
   kind: NodeKind;
   label: string;
   icon: string;
@@ -106,11 +125,13 @@ export const defaultPorts = (): Port[] => [
     semantic: "control",
   },
 ];
-export function createDiagram(): Diagram {
+export function createDiagram(kind: DiagramKind = "workflow"): Diagram {
   const now = new Date().toISOString();
   return {
+    id: newId(),
+    kind,
     version: "1.0",
-    name: "Untitled diagram",
+    name: kind === "data-model" ? "Untitled data model" : kind === "architecture" ? "Untitled architecture" : "Untitled diagram",
     description: "",
     createdAt: now,
     updatedAt: now,
@@ -140,7 +161,8 @@ export function createNode(
         template.kind === "ai-agent"
           ? { model: "GPT-5", memory: "Session", tools: "Enabled" }
           : {},
-      ports: group
+      ...(template.kind === "table" ? { fields: [] } : {}),
+      ports: template.kind === "table" ? [] : group
         ? []
         : defaultPorts().filter((p) =>
             template.kind === "start"

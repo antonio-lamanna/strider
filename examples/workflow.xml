@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<automation-diagram version="1.0" id="a5cf8570-89a8-41d5-9995-655eb659f51a" name="User onboarding">
+  <metadata created-at="2026-09-11T08:49:56.744Z" updated-at="2026-09-11T08:49:56.744Z"/>
+  <description>An automated onboarding process with an AI assistant and a manager decision.</description>
+  <viewport x="0" y="0" zoom="1"/>
+  <settings grid="true" snap="true" gridSize="20"/>
+  <nodes>
+    <node id="d7d01696-5824-4e73-a2a0-1f4f01b4047d" type="start" label="Start" icon="play" color="#26966b" x="60" y="226" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="51052a7a-cba1-41ac-a84c-bdfe106d491a" type="automated-task" label="Create user" system="power-automate" icon="workflow" color="#4775d8" x="210" y="217" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="d0697321-d286-4aba-8b89-21daaf0bfda8" type="ai-agent" label="Onboarding agent" system="openai" icon="bot" color="#8370ca" x="445" y="201" sizeMode="auto">
+      <description/>
+      <properties>
+        <property name="model" encoding="json">"GPT-5"</property>
+        <property name="memory" encoding="json">"Session"</property>
+        <property name="tools" encoding="json">"Enabled"</property>
+      </properties>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="3bc2b36e-d2f1-4240-9c2b-0499bd4b8161" type="gateway" subtype="xor" label="Is manager?" icon="git-branch" color="#c18b35" x="850" y="222" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="31226929-5161-4849-a3ac-abf60bf83543" type="application" label="Add to Slack channel" system="slack" icon="hash" color="#94508b" x="1070" y="120" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="09dca7ef-53e6-4798-b293-472a9228701b" type="automated-task" label="Update user profile" system="dataverse" icon="settings" color="#368777" x="1070" y="355" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="out" direction="output" side="right" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+        <port id="out-bottom" direction="output" side="bottom" semantic="control"/>
+      </ports>
+    </node>
+    <node id="99f13c5b-e2a5-419d-81fa-d8d75d20ff0c" type="end" label="End" icon="square" color="#dc6161" x="1400" y="129" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+      </ports>
+    </node>
+    <node id="9d4e19fc-0c16-40ed-abff-a76d680eb89b" type="end" label="End" icon="square" color="#dc6161" x="1400" y="364" sizeMode="auto">
+      <description/>
+      <properties/>
+      <ports>
+        <port id="in" direction="input" side="left" semantic="control"/>
+        <port id="in-top" direction="input" side="top" semantic="control"/>
+      </ports>
+    </node>
+  </nodes>
+  <edges>
+    <edge id="c60b8755-f8ce-4d88-86e0-3efeacdff25b" source="d7d01696-5824-4e73-a2a0-1f4f01b4047d" target="51052a7a-cba1-41ac-a84c-bdfe106d491a" sourceHandle="out" targetHandle="in" type="control" label="" lineStyle="auto">
+      <properties/>
+    </edge>
+    <edge id="13cd55c7-2ab6-4003-8acf-8b1b2d661002" source="51052a7a-cba1-41ac-a84c-bdfe106d491a" target="d0697321-d286-4aba-8b89-21daaf0bfda8" sourceHandle="out" targetHandle="in" type="control" label="" lineStyle="auto">
+      <properties/>
+    </edge>
+    <edge id="c26195e4-6827-4ca0-9054-3dfdbb175276" source="d0697321-d286-4aba-8b89-21daaf0bfda8" target="3bc2b36e-d2f1-4240-9c2b-0499bd4b8161" sourceHandle="out" targetHandle="in" type="control" label="" lineStyle="auto">
+      <properties/>
+    </edge>
+    <edge id="b6f74334-9b7c-4be6-b14e-b5ec572e19c0" source="3bc2b36e-d2f1-4240-9c2b-0499bd4b8161" target="31226929-5161-4849-a3ac-abf60bf83543" sourceHandle="out" targetHandle="in" type="control" label="True" lineStyle="auto">
+      <properties/>
+    </edge>
+    <edge id="c6e2d907-2314-4583-8ec0-f85f3355d628" source="3bc2b36e-d2f1-4240-9c2b-0499bd4b8161" target="09dca7ef-53e6-4798-b293-472a9228701b" sourceHandle="out" targetHandle="in" type="control" label="False" lineStyle="auto">
+      <properties/>
+    </edge>
+    <edge id="45788420-1606-46c9-bc4e-60ce4f05f546" source="31226929-5161-4849-a3ac-abf60bf83543" target="99f13c5b-e2a5-419d-81fa-d8d75d20ff0c" sourceHandle="out" targetHandle="in" type="control" label="" lineStyle="auto">
+      <properties/>
+    </edge>
+    <edge id="6f4eb3c4-3bec-43ac-9f89-b0412f04c8d9" source="09dca7ef-53e6-4798-b293-472a9228701b" target="9d4e19fc-0c16-40ed-abff-a76d680eb89b" sourceHandle="out" targetHandle="in" type="control" label="" lineStyle="auto">
+      <properties/>
+    </edge>
+  </edges>
+</automation-diagram>

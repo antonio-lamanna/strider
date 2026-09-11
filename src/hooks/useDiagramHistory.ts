@@ -86,7 +86,23 @@ export function useDiagramHistory() {
     },
     [publish],
   );
+  const savedRef = useRef(saved);
+  savedRef.current = saved;
+  const sessions = useRef(new Map<string, { diagram: Diagram; past: Diagram[]; future: Diagram[]; saved: string }>());
+  function switchTo(next: Diagram) {
+    end();
+    sessions.current.set(ref.current.id, { diagram: ref.current, past: past.current, future: future.current, saved: savedRef.current });
+    const session = sessions.current.get(next.id);
+    past.current = session?.past ?? [];
+    future.current = session?.future ?? [];
+    transaction.current = null;
+    lastMerge.current = { key: "", at: 0 };
+    publish(session?.diagram ?? next);
+    setSaved(session?.saved ?? fingerprint(next));
+  }
+  function resetSessions() { sessions.current.clear(); }
   return {
+    switchTo, resetSessions,
     diagram,
     ref,
     replace,

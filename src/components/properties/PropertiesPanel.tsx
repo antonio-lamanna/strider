@@ -1,3 +1,6 @@
+import { FieldEditor } from "./FieldEditor";
+import { readCustomIcon } from "../../services/customIcon";
+import type { DataField } from "../../model/diagram";
 import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type {
@@ -99,6 +102,7 @@ function PropertiesEditor({
   );
 }
 interface Props {
+  onFields: (id: string, fields: DataField[]) => void;
   diagram: Diagram;
   nodes: DiagramNode[];
   edge?: DiagramEdge;
@@ -120,6 +124,7 @@ interface Props {
   onClose: () => void;
 }
 export function PropertiesPanel(p: Props) {
+  const [iconError, setIconError] = useState("");
   const node = p.nodes.length === 1 ? p.nodes[0] : undefined,
     edge = !p.nodes.length ? p.edge : undefined;
   const layout = node ? nodeLayout(node) : null;
@@ -216,7 +221,7 @@ export function PropertiesPanel(p: Props) {
                   }
                 />
               </Field>
-              <Field label="Node type">
+              {node.data.kind !== "table" && <Field label="Node type">
                 <select
                   value={`${node.data.kind}:${node.data.subtype ?? ""}`}
                   onChange={(e) => {
@@ -229,7 +234,7 @@ export function PropertiesPanel(p: Props) {
                   {nodeTemplates
                     .filter(
                       (t) =>
-                        ["group", "system-boundary", "team-boundary"].includes(
+                        t.kind !== "table" && ["group", "system-boundary", "team-boundary"].includes(
                           t.kind,
                         ) === isContainer(node),
                     )
@@ -242,8 +247,9 @@ export function PropertiesPanel(p: Props) {
                       </option>
                     ))}
                 </select>
-              </Field>
+              </Field>}
             </Section>
+            {node.data.kind === "table" && <FieldEditor key={node.id} fields={node.data.fields ?? []} onChange={fields => p.onFields(node.id, fields)}/>}
             <Section title="Appearance">
               <Field label="System preset">
                 <select
@@ -308,6 +314,15 @@ export function PropertiesPanel(p: Props) {
                 </Field>
               </div>
             </Section>
+            {!isEvent(node) && node.data.kind !== "gateway" && node.data.kind !== "table" && <Section title="Custom icon">
+              <label className="field"><span>Upload PNG, JPEG or WebP</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={async e => {
+                const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
+                const id = node.id; setIconError('');
+                try { const customIcon = await readCustomIcon(file); p.onData(id, { customIcon }); } catch (error) { setIconError(error instanceof Error ? error.message : 'Unable to open image.'); }
+              }}/></label>
+              {node.data.customIcon && <div className="custom-icon-preview"><img src={node.data.customIcon} alt="Custom icon"/><button className="subtle-button" onClick={() => p.onData(node.id, { customIcon: undefined })}>Remove custom icon</button></div>}
+              {iconError && <p className="field-error">{iconError}</p>}
+            </Section>}
             {!isEvent(node) && node.data.kind !== "gateway" && (
               <Section title="Dimensions">
                 <div className="sizing-switch">
@@ -463,6 +478,7 @@ export function PropertiesPanel(p: Props) {
                 <small>Flow properties</small>
               </div>
             </div>
+            {p.diagram.kind === 'data-model' && <Section title="Relationship"><Field label="Cardinality"><select value={String(edge.data?.properties.cardinality ?? '1:N')} onChange={e => p.onEdge(edge.id, {}, { properties: { ...edge.data?.properties, cardinality: e.target.value } })}>{['1:1', '1:N', 'N:1', 'N:N'].map(c => <option key={c}>{c}</option>)}</select></Field></Section>}
             <Section title="Connection">
               <Field label="Label">
                 <input
@@ -664,6 +680,7 @@ export function PropertiesPanel(p: Props) {
                   }
                 />
               </label>
+              <Field label="Grid color"><input type="color" value={p.diagram.settings.gridColor ?? '#bbc3ce'} onChange={e => p.onDiagram({ settings: { ...p.diagram.settings, gridColor: e.target.value } })}/></Field>
               <Field label="Grid spacing">
                 <select
                   value={p.diagram.settings.gridSize}

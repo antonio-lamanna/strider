@@ -1,0 +1,42 @@
+import { act } from 'react';
+import { createRoot } from 'react-dom/client';
+import { describe, it, expect } from 'vitest';
+import { useDiagramHistory } from './useDiagramHistory';
+import { useWorkspace } from './useWorkspace';
+import { createDiagram } from '../model/diagram';
+import { parseFile, serializeProject } from '../services/projectXml';
+(globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
+describe('Project editing sessions', () => {
+  it('preserves independent undo, edits and dirty state when switching tabs and saving a project', async () => {
+    let h!: ReturnType<typeof useDiagramHistory>, w!: ReturnType<typeof useWorkspace>;
+    function Harness() { h = useDiagramHistory(); w = useWorkspace(h); return null; }
+    const container = document.createElement('div'), root = createRoot(container);
+    await act(async () => root.render(<Harness/>));
+    const original = h.diagram.id;
+    await act(async () => h.commit(d => ({ ...d, name: 'Approval process' })));
+    const db = createDiagram('data-model');
+    await act(async () => w.add(db));
+    await act(async () => h.commit(d => ({ ...d, name: 'Customer schema' })));
+    await act(async () => w.activate(original));
+    expect(h.diagram.name).toBe('Approval process');
+    await act(async () => h.undo());
+    expect(h.diagram.name).toBe('Untitled diagram');
+    await act(async () => w.activate(db.id));
+    expect(h.diagram.name).toBe('Customer schema');
+    await act(async () => h.undo());
+    expect(h.diagram.name).toBe('Untitled data model');
+    await act(async () => h.redo());
+    await act(async () => w.setProject({ id: 'p', name: 'Application', description: 'Design' }));
+    expect(w.dirty).toBe(true);
+    const exported = w.getProject()!;
+    await act(async () => w.markProjectSaved());
+    expect(w.dirty).toBe(false);
+    await act(async () => w.activate(original));
+    expect(w.dirty).toBe(false);
+    const result = parseFile(serializeProject(exported));
+    if (result.type !== 'project') throw new Error('Expected project');
+    await act(async () => w.loadProject(result.project));
+    expect(w.docs).toHaveLength(2); expect(h.diagram.name).toBe('Customer schema'); expect(w.dirty).toBe(false);
+    await act(async () => root.unmount());
+  });
+});

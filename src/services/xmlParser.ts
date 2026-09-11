@@ -8,6 +8,9 @@ import type {
   JsonValue,
   Port,
 } from "../model/diagram";
+import { fieldPorts, validCustomIcon } from "../model/dataModel";
+import type { DataField, DiagramKind } from "../model/diagram";
+import { tableTemplate } from "../config/modules";
 import { nodeTemplates } from "../config/nodeTypes";
 import { sortParentsFirst } from "../utils/geometry";
 
@@ -82,18 +85,20 @@ export function parseDiagram(xml: string): Diagram {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
   if (doc.querySelector("parsererror"))
     throw new Error(
-      "The XML is malformed. Open an Automation Canvas XML file.",
+      "The XML is malformed. Open a Strider XML file.",
     );
   const root = doc.documentElement;
-  if (root.tagName !== "automation-diagram")
+  if (!["automation-diagram", "data-model-diagram", "architecture-diagram"].includes(root.tagName))
     throw new Error(
-      "This is not an Automation Canvas diagram. Expected <automation-diagram>.",
+      "This is not a Strider diagram. Expected <automation-diagram>.",
     );
   if (root.getAttribute("version") !== "1.0")
     throw new Error(
       `Unsupported diagram version: ${root.getAttribute("version") ?? "missing"}. Supported version: 1.0.`,
     );
-  const d = createDiagram();
+  const kind: DiagramKind = root.tagName === "data-model-diagram" ? "data-model" : root.tagName === "architecture-diagram" ? "architecture" : "workflow";
+  const d = createDiagram(kind);
+  d.id = root.getAttribute("id") || d.id;
   d.name = root.getAttribute("name") || "Untitled diagram";
   d.description = child(root, "description")?.textContent ?? "";
   const meta = child(root, "metadata");
@@ -114,7 +119,9 @@ export function parseDiagram(xml: string): Diagram {
       grid: boolean(settings, "grid", true),
       snap: boolean(settings, "snap", true),
       gridSize: number(settings, "gridSize", 20, 5, 100),
+      ...(settings.hasAttribute("gridColor") ? { gridColor: required(settings, "gridColor") } : {}),
     };
+  if (d.settings.gridColor && !/^#[\da-f]{6}$/i.test(d.settings.gridColor)) throw new Error("Invalid grid color.");
   const nodeList = child(root, "nodes"),
     edgeList = child(root, "edges");
   if (!nodeList || !edgeList)
@@ -133,7 +140,7 @@ export function parseDiagram(xml: string): Diagram {
     ids.add(id);
     const kind = required(el, "type"),
       subtype = el.getAttribute("subtype") ?? undefined;
-    const template = nodeTemplates.find(
+    const template = [...nodeTemplates, tableTemplate].find(
       (t) => t.kind === kind && (!subtype || t.subtype === subtype),
     );
     if (!template)
@@ -199,6 +206,30 @@ export function parseDiagram(xml: string): Diagram {
         ports,
       },
     };
+    const customIcon = child(el, "custom-icon")?.textContent;
+    if (customIcon) {
+      if (!validCustomIcon(customIcon)) throw new Error(`Invalid custom image on ${id}. Use PNG, JPEG or WebP.`);
+      n.data.customIcon = customIcon;
+    }
+    if (kind === "table") {
+      if (d.kind !== "data-model") throw new Error("Tables belong in a Data Model diagram.");
+      const fieldsElement = child(el, "fields");
+      if (!fieldsElement) throw new Error(`Table ${id} is missing its fields.`);
+      const fieldIds = new Set<string>(), fieldNames = new Set<string>();
+      n.data.fields = children(fieldsElement, "field").map(f => {
+        const fid = required(f, "id");
+        if (fieldIds.has(fid)) throw new Error(`Duplicate field ID on ${id}.`);
+        fieldIds.add(fid);
+        const name = required(f, "name"), dtype = required(f, "dataType");
+        if (!name.trim() || !dtype.trim() || fieldNames.has(name.trim().toLowerCase())) throw new Error(`Table ${n.data.label} needs unique, non-empty field names and data types.`);
+        fieldNames.add(name.trim().toLowerCase());
+        return { id: fid, name: required(f, "name"), dataType: required(f, "dataType"),
+          primaryKey: boolean(f, "primaryKey", false), foreignKey: boolean(f, "foreignKey", false),
+          nullable: boolean(f, "nullable", true), unique: boolean(f, "unique", false),
+          defaultValue: f.getAttribute("defaultValue") ?? "", description: f.getAttribute("description") ?? "" } satisfies DataField;
+      });
+      n.data.ports = fieldPorts(n.data.fields);
+    } else if (d.kind === "data-model" && !isContainer(n)) throw new Error("A Data Model can contain only tables and groups.");
     if (el.hasAttribute("parent")) n.parentId = el.getAttribute("parent")!;
     if (el.hasAttribute("zIndex"))
       n.zIndex = number(el, "zIndex", 0, -1000, 1000);
@@ -259,6 +290,8 @@ export function parseDiagram(xml: string): Diagram {
       !["auto", "solid", "dashed", "dotted"].includes(lineStyle)
     )
       throw new Error(`Invalid connection type or line style on ${id}.`);
+    const props = properties(el);
+    if (d.kind === 'data-model' && props.cardinality !== undefined && !['1:1', '1:N', 'N:1', 'N:N'].includes(String(props.cardinality))) throw new Error(`Invalid cardinality on ${id}.`);
     return {
       id,
       type: "orthogonal",
@@ -270,7 +303,7 @@ export function parseDiagram(xml: string): Diagram {
       data: {
         semantic: semantic as EdgeSemantic,
         lineStyle: lineStyle as LineStyle,
-        properties: properties(el),
+        properties: props,
       },
     } satisfies DiagramEdge;
   });

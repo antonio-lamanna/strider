@@ -16,6 +16,7 @@ export const OrthogonalEdge = memo(function OrthogonalEdge(
     : p.data?.semantic === "exception"
       ? "#c46666"
       : "var(--edge)";
+  const label = [p.label, p.data?.properties.cardinality].filter(Boolean).join(" · ");
   const marker = `arrow-${p.id}`;
   return (
     <>
@@ -47,7 +48,7 @@ export const OrthogonalEdge = memo(function OrthogonalEdge(
           strokeLinecap: "round",
         }}
       />
-      {p.label && (
+      {label && (
         <EdgeLabelRenderer>
           <div
             className={`edge-label nodrag nopan ${p.selected ? "selected" : ""}`}
@@ -55,7 +56,7 @@ export const OrthogonalEdge = memo(function OrthogonalEdge(
               transform: `translate(-50%, -50%) translate(${x}px,${y}px)`,
             }}
           >
-            {p.label}
+            {label}
           </div>
         </EdgeLabelRenderer>
       )}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data-model-diagram version="1.0" id="a07ef3c4-1fa8-4e6d-9258-feab9aa29bb4" name="Customer orders">
+  <metadata created-at="2026-09-11T08:49:56.747Z" updated-at="2026-09-11T08:49:56.747Z"/>
+  <description/>
+  <viewport x="0" y="0" zoom="1"/>
+  <settings grid="true" snap="true" gridSize="20"/>
+  <nodes>
+    <node id="3c59fcc2-5039-4448-8774-7176d5aff406" type="table" label="Customer" icon="database" color="#5f7ec7" x="100" y="120" sizeMode="auto">
+      <description/>
+      <fields>
+        <field id="807d3408-4e21-427d-9c19-37ae34922f1f" name="id" dataType="UUID" primaryKey="true" foreignKey="false" nullable="false" unique="false" defaultValue="" description=""/>
+        <field id="06f94f9c-2f5a-46d4-b3ca-610dfb915a5c" name="name" dataType="VARCHAR(255)" primaryKey="false" foreignKey="false" nullable="true" unique="false" defaultValue="" description=""/>
+        <field id="12bbdccb-e67d-4d79-bcc5-194a6b178434" name="email" dataType="VARCHAR(255)" primaryKey="false" foreignKey="false" nullable="true" unique="false" defaultValue="" description=""/>
+      </fields>
+      <properties/>
+      <ports>
+        <port id="807d3408-4e21-427d-9c19-37ae34922f1f:in" direction="input" side="left" semantic="data" label="id"/>
+        <port id="807d3408-4e21-427d-9c19-37ae34922f1f:out" direction="output" side="right" semantic="data" label="id"/>
+        <port id="06f94f9c-2f5a-46d4-b3ca-610dfb915a5c:in" direction="input" side="left" semantic="data" label="name"/>
+        <port id="06f94f9c-2f5a-46d4-b3ca-610dfb915a5c:out" direction="output" side="right" semantic="data" label="name"/>
+        <port id="12bbdccb-e67d-4d79-bcc5-194a6b178434:in" direction="input" side="left" semantic="data" label="email"/>
+        <port id="12bbdccb-e67d-4d79-bcc5-194a6b178434:out" direction="output" side="right" semantic="data" label="email"/>
+      </ports>
+    </node>
+    <node id="c581bb1d-314a-4fc0-aec5-7b385dfa9006" type="table" label="Order" icon="database" color="#609b86" x="530" y="180" sizeMode="auto">
+      <description/>
+      <fields>
+        <field id="10bd039e-fe1a-4858-a41e-f2ea3676d18c" name="id" dataType="UUID" primaryKey="true" foreignKey="false" nullable="false" unique="false" defaultValue="" description=""/>
+        <field id="4c144fd5-5f70-4b82-9f56-04287e8f62a4" name="customer_id" dataType="UUID" primaryKey="false" foreignKey="true" nullable="false" unique="false" defaultValue="" description=""/>
+        <field id="ee40569d-5aa1-4bd7-b0a3-18508eb420a0" name="total" dataType="DECIMAL(10,2)" primaryKey="false" foreignKey="false" nullable="true" unique="false" defaultValue="" description=""/>
+        <field id="b9ed29f0-dc11-4624-bf51-0db53e95a23c" name="created_at" dataType="TIMESTAMP" primaryKey="false" foreignKey="false" nullable="true" unique="false" defaultValue="" description=""/>
+      </fields>
+      <properties/>
+      <ports>
+        <port id="10bd039e-fe1a-4858-a41e-f2ea3676d18c:in" direction="input" side="left" semantic="data" label="id"/>
+        <port id="10bd039e-fe1a-4858-a41e-f2ea3676d18c:out" direction="output" side="right" semantic="data" label="id"/>
+        <port id="4c144fd5-5f70-4b82-9f56-04287e8f62a4:in" direction="input" side="left" semantic="data" label="customer_id"/>
+        <port id="4c144fd5-5f70-4b82-9f56-04287e8f62a4:out" direction="output" side="right" semantic="data" label="customer_id"/>
+        <port id="ee40569d-5aa1-4bd7-b0a3-18508eb420a0:in" direction="input" side="left" semantic="data" label="total"/>
+        <port id="ee40569d-5aa1-4bd7-b0a3-18508eb420a0:out" direction="output" side="right" semantic="data" label="total"/>
+        <port id="b9ed29f0-dc11-4624-bf51-0db53e95a23c:in" direction="input" side="left" semantic="data" label="created_at"/>
+        <port id="b9ed29f0-dc11-4624-bf51-0db53e95a23c:out" direction="output" side="right" semantic="data" label="created_at"/>
+      </ports>
+    </node>
+  </nodes>
+  <edges>
+    <edge id="customer-orders" source="3c59fcc2-5039-4448-8774-7176d5aff406" target="c581bb1d-314a-4fc0-aec5-7b385dfa9006" sourceHandle="807d3408-4e21-427d-9c19-37ae34922f1f:out" targetHandle="4c144fd5-5f70-4b82-9f56-04287e8f62a4:in" type="data" label="places" lineStyle="solid">
+      <properties>
+        <property name="cardinality" encoding="json">"1:N"</property>
+      </properties>
+    </edge>
+  </edges>
+</data-model-diagram>

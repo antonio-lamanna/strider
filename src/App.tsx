@@ -27,7 +27,14 @@ import {
 } from "./model/diagram";
 import { newId } from "./utils/id";
 import { nodeTemplates } from "./config/nodeTypes";
-import { exampleDiagram } from "./config/example";
+import { moduleExample } from "./config/moduleExamples";
+import { modules, tableTemplate } from "./config/modules";
+import { useWorkspace } from "./hooks/useWorkspace";
+import { WorkspaceBar } from "./components/toolbar/WorkspaceBar";
+import { parseFile, serializeProject } from "./services/projectXml";
+import { exportExcel } from "./services/excelExport";
+import { createField, withFields, fieldFromHandle } from "./model/dataModel";
+import type { DataField, DiagramKind } from "./model/diagram";
 import {
   absolutePosition,
   containingGroup,
@@ -37,7 +44,7 @@ import {
   sortParentsFirst,
 } from "./utils/geometry";
 import { serializeDiagram } from "./services/xmlSerializer";
-import { parseDiagram } from "./services/xmlParser";
+
 import {
   downloadBlob,
   exportDiagram,
@@ -89,6 +96,7 @@ type PendingAction = {
   body: string;
   label: string;
   action: () => void;
+  saveAction?: () => boolean;
 };
 function loadTheme() {
   try {
@@ -101,6 +109,13 @@ function loadTheme() {
 export default function App() {
   const history = useDiagramHistory(),
     { diagram: d, ref, commit, replace, begin, end } = history;
+  const workspace = useWorkspace(history);
+  const [newDialog, setNewDialog] = useState(false);
+  const [projectDialog, setProjectDialog] = useState(false);
+  const [projectMode, setProjectMode] = useState<'create' | 'edit'>('create');
+  const [projectName, setProjectName] = useState('');
+  const [projectDescription, setProjectDescription] = useState('');
+  const [transparent, setTransparent] = useState(true);
   const flow = useReactFlow<DiagramNode, DiagramEdge>(),
     viewport = useViewport(),
     clipboard = useClipboard();
@@ -143,16 +158,16 @@ export default function App() {
   }, [dark]);
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (history.dirty) {
+      if (workspace.dirty) {
         e.preventDefault();
         e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [history.dirty]);
+  }, [workspace.dirty]);
   useEffect(() => {
-    document.title = `${d.name || "Untitled diagram"} · Automation Canvas`;
+    document.title = `${d.name || "Untitled diagram"} · Strider`;
   }, [d.name]);
   useEffect(() => {
     if (!context) return;
@@ -165,7 +180,7 @@ export default function App() {
   }, [context]);
 
   function guard(action: () => void, label: string) {
-    if (history.dirty)
+    if (workspace.dirtyDiagram(d.id))
       setPending({
         title: "Keep your current diagram?",
         body: "You have unsaved changes. Save an XML copy before replacing this diagram.",
@@ -175,7 +190,7 @@ export default function App() {
     else action();
   }
   function loadDiagram(next: Diagram, saved = true, fit = false) {
-    history.load(next, saved);
+    history.load({ ...next, id: ref.current.id }, saved);
     setContext(null);
     void flow.setViewport(next.viewport);
     if (fit)
@@ -192,30 +207,105 @@ export default function App() {
       name: ref.current.name.trim() || "Untitled diagram",
       viewport: flow.getViewport(),
     };
+    let xml: string;
+    try { xml = serializeDiagram(next); parseFile(xml); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Unable to save diagram.'); return false; }
     downloadBlob(
-      new Blob([serializeDiagram(next)], {
+      new Blob([xml], {
         type: "application/xml;charset=utf-8",
       }),
       safeFilename(next.name) + ".xml",
     );
-    history.markSaved(next);
+    workspace.markDiagramSaved(next);
     notify("XML saved. Reopen it any time to continue.");
+    return true;
+  }
+  function saveProject() {
+    const project = workspace.getProject();
+    if (!project) return false;
+    try {
+      const xml = serializeProject(project);
+      parseFile(xml);
+      downloadBlob(new Blob([xml], { type: "application/xml;charset=utf-8" }), safeFilename(project.name) + ".xml");
+      workspace.markProjectSaved();
+      notify("Project saved with all diagrams.");
+      return true;
+    } catch (e) { setError(e instanceof Error ? e.message : "Unable to save project."); return false; }
+  }
+  function saveWorkspaceBackup() {
+    if (workspace.project) return saveProject();
+    if (workspace.docs.length === 1) return save();
+    try {
+      const backup = { id: newId(), name: "Strider workspace", description: "Workspace backup", diagrams: workspace.docs, activeDiagramId: d.id };
+      const xml = serializeProject(backup); parseFile(xml);
+      downloadBlob(new Blob([xml], { type: "application/xml;charset=utf-8" }), "strider-workspace.xml");
+      return true;
+    } catch (e) { setError(e instanceof Error ? e.message : "Unable to save workspace."); return false; }
+  }
+  function saveTabCopy(id: string) {
+    const diagram = workspace.docs.find(d => d.id === id);
+    if (!diagram) return false;
+    try {
+      const xml = serializeDiagram(diagram); parseFile(xml);
+      downloadBlob(new Blob([xml], { type: 'application/xml;charset=utf-8' }), safeFilename(diagram.name) + '.xml');
+      return true;
+    } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save diagram.'); return false; }
+  }
+  function openProjectSettings(edit = !!workspace.project) {
+    setProjectMode(edit ? 'edit' : 'create');
+    setProjectName(edit ? workspace.project?.name ?? 'New project' : 'New project');
+    setProjectDescription(edit ? workspace.project?.description ?? '' : '');
+    setProjectDialog(true);
+  }
+  function createTab(kind: DiagramKind) {
+    const next = createDiagram(kind);
+    workspace.add(next);
+    void flow.setViewport(next.viewport);
+    setContext(null); setNewDialog(false);
+  }
+  function selectTab(id: string) {
+    if (id === ref.current.id) return;
+    const next = workspace.docs.find(d => d.id === id);
+    workspace.activate(id);
+    if (next) void flow.setViewport(next.viewport);
+    setContext(null);
+  }
+  function closeTab(id: string) {
+    const action = () => {
+      const wasActive = ref.current.id === id;
+      const next = workspace.docs.find(d => d.id !== id);
+      workspace.remove(id);
+      if (wasActive) void flow.setViewport(next?.viewport ?? { x: 0, y: 0, zoom: 1 });
+    };
+    if (workspace.project || workspace.dirtyDiagram(id)) setPending({
+      title: workspace.project ? "Remove diagram from project?" : "Close unsaved diagram?",
+      body: "Export this diagram first if you want to keep a separate copy. Other diagrams will stay open.",
+      label: workspace.project ? "Remove diagram" : "Close diagram", action, saveAction: () => saveTabCopy(id),
+    }); else action();
   }
   async function openFile(file: File) {
     try {
-      const next = parseDiagram(await file.text());
-      guard(() => {
-        loadDiagram(next);
-        notify(`Opened ${file.name}`);
-      }, "Open diagram");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to open this file.");
-    }
+      const result = parseFile(await file.text());
+      if (result.type === "project") {
+        const action = () => {
+          workspace.loadProject(result.project);
+          const next = result.project.diagrams.find(d => d.id === result.project.activeDiagramId) ?? result.project.diagrams[0];
+          void flow.setViewport(next?.viewport ?? { x: 0, y: 0, zoom: 1 });
+          notify(`Opened project: ${result.project.name}`);
+        };
+        if (workspace.dirty) setPending({ title: "Open another project?", body: "Save your current diagrams or project before replacing this workspace.", label: "Open project", action, saveAction: saveWorkspaceBackup });
+        else action();
+      } else {
+        workspace.add(result.diagram, true);
+        void flow.setViewport(result.diagram.viewport);
+        notify(`Opened ${modules.find(m => m.kind === result.diagram.kind)?.name}: ${result.diagram.name}`);
+      }
+    } catch (e) { setError(e instanceof Error ? e.message : "Unable to open this file."); }
   }
   async function exportFile(format: "svg" | "png") {
     setExporting(true);
     try {
-      await exportDiagram(ref.current, format, dark);
+      await exportDiagram(ref.current, format, dark, transparent);
       notify(`${format.toUpperCase()} exported`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Export failed.");
@@ -237,6 +327,12 @@ export default function App() {
       ),
     [commit],
   );
+  function patchFields(id: string, fields: DataField[]) {
+    commit(d => {
+      const ports = new Set(fields.flatMap(f => [`${f.id}:in`, `${f.id}:out`]));
+      return { ...d, nodes: d.nodes.map(n => n.id === id ? withFields(n, fields) : n), edges: d.edges.filter(e => !(e.source === id && !ports.has(e.sourceHandle ?? '')) && !(e.target === id && !ports.has(e.targetHandle ?? ''))) };
+    }, `fields:${id}`);
+  }
   function patchDiagram(patch: Partial<Diagram>) {
     commit(
       (d) => ({ ...d, ...patch }),
@@ -469,6 +565,13 @@ export default function App() {
       position.y = Math.round(position.y / grid) * grid;
     }
     let n = createNode(template, position);
+    if (template.kind === "table") {
+      const id = { ...createField("id"), dataType: "UUID", primaryKey: true, nullable: false };
+      n = withFields(n, [id]);
+      let count = ref.current.nodes.filter(n => n.data.kind === "table").length + 1;
+      while (ref.current.nodes.some(n => n.data.label === `Table_${count}`)) count++;
+      n.data.label = `Table_${count}`;
+    }
     n.selected = true;
     const parent = containingGroup(n, ref.current.nodes);
     if (parent) n = reparentNode(n, parent.id, [...ref.current.nodes, n]);
@@ -667,7 +770,7 @@ export default function App() {
         if (
           !connection.source ||
           !connection.target ||
-          connection.source === connection.target
+          (connection.source === connection.target && d.kind !== "data-model")
         )
           return d;
         if (
@@ -685,9 +788,10 @@ export default function App() {
           id: newId(),
           type: "orthogonal",
           label: "",
-          data: { semantic: "control", lineStyle: "auto", properties: {} },
+          data: d.kind === "data-model" ? { semantic: "data", lineStyle: "solid", properties: { cardinality: "1:N" } } : { semantic: "control", lineStyle: "auto", properties: {} },
         };
-        return { ...d, edges: [...d.edges, e] };
+        const nodes = d.kind === "data-model" ? d.nodes.map(n => n.id === connection.target ? withFields(n, (n.data.fields ?? []).map(f => f.id === fieldFromHandle(connection.targetHandle) ? { ...f, foreignKey: true } : f)) : n) : d.nodes;
+        return { ...d, nodes, edges: [...d.edges, e] };
       }),
     [commit],
   );
@@ -760,7 +864,7 @@ export default function App() {
       "mod+shift+z": history.redo,
       "mod+y": history.redo,
       "mod+a": selectAll,
-      "mod+s": save,
+      "mod+s": () => workspace.project ? saveProject() : save(),
       "mod+g": groupSelection,
       escape: clearSelection,
       "1": fit,
@@ -768,7 +872,7 @@ export default function App() {
       h: () => setTool("pan"),
       "?": () => setHelp(true),
     },
-    !!pending || help || !!error,
+    !!pending || help || !!error || newDialog || projectDialog,
   );
 
   return (
@@ -778,9 +882,9 @@ export default function App() {
       >
         <Toolbar
           name={d.name}
-          dirty={history.dirty}
+          dirty={workspace.dirtyDiagram(d.id)}
           onName={(name) => patchDiagram({ name })}
-          onNew={() => guard(() => loadDiagram(createDiagram()), "New diagram")}
+          onNew={() => setNewDialog(true)}
           onOpen={() => fileRef.current?.click()}
           onSave={save}
           onExport={exportFile}
@@ -793,7 +897,11 @@ export default function App() {
           onHelp={() => setHelp(true)}
           hasNodes={!!d.nodes.length}
           exporting={exporting}
+          transparent={transparent}
+          onTransparent={setTransparent}
+          onExcel={d.kind === 'data-model' ? () => exportExcel(d) : undefined}
         />
+        <WorkspaceBar docs={workspace.docs} active={d.id} project={workspace.project} dirty={workspace.dirty} dirtyDiagram={workspace.dirtyDiagram} onSelect={selectTab} onRemove={closeTab} onNew={() => setNewDialog(true)} onProject={() => openProjectSettings()} onSaveProject={saveProject}/>
         <input
           className="visually-hidden"
           type="file"
@@ -808,7 +916,8 @@ export default function App() {
         />
         <main className="editor-workspace">
           {leftOpen && (
-            <Palette
+            <Palette key={d.kind}
+              kind={d.kind}
               onAdd={add}
               onDrop={(template, x, y) => {
                 const r = canvasRef.current?.getBoundingClientRect();
@@ -911,7 +1020,7 @@ export default function App() {
               deleteKeyCode={null}
               selectNodesOnDrag
               elevateEdgesOnSelect={false}
-              isValidConnection={(c) => c.source !== c.target}
+              isValidConnection={(c) => d.kind === "data-model" ? !!c.sourceHandle && !!c.targetHandle && c.sourceHandle !== c.targetHandle : c.source !== c.target}
               colorMode={dark ? "dark" : "light"}
             >
               {d.settings.grid && (
@@ -919,7 +1028,7 @@ export default function App() {
                   variant={BackgroundVariant.Dots}
                   gap={d.settings.gridSize}
                   size={1}
-                  color={dark ? "#353d49" : "#d6dce4"}
+                  color={d.settings.gridColor ?? (dark ? "#4b5666" : "#bbc3ce")}
                 />
               )}
             </ReactFlow>
@@ -937,7 +1046,7 @@ export default function App() {
                 )}
                 <span className="canvas-tag">
                   <Icon name="workflow" size={13} />
-                  WORKSPACE
+                  {modules.find(m => m.kind === d.kind)?.name.toUpperCase()}
                 </span>
                 <span className="breadcrumb-slash">/</span>
                 <span>{d.name || "Untitled diagram"}</span>
@@ -947,7 +1056,7 @@ export default function App() {
                   className="subtle-button"
                   onClick={() =>
                     guard(
-                      () => loadDiagram(exampleDiagram(), false, true),
+                      () => loadDiagram(moduleExample(d.kind), false, true),
                       "Load example",
                     )
                   }
@@ -977,17 +1086,17 @@ export default function App() {
                 <div className="empty-quick-actions">
                   <button
                     onClick={() =>
-                      add(nodeTemplates.find((t) => t.kind === "task")!)
+                      add(d.kind === "data-model" ? tableTemplate : nodeTemplates.find((t) => t.kind === (d.kind === "architecture" ? "application" : "task"))!)
                     }
                   >
                     <Plus size={14} />
-                    Add a task
+                    {d.kind === "data-model" ? "Add a table" : d.kind === "architecture" ? "Add a system" : "Add a task"}
                   </button>
                   <span>or</span>
                   <button
                     onClick={() =>
                       guard(
-                        () => loadDiagram(exampleDiagram(), false, true),
+                        () => loadDiagram(moduleExample(d.kind), false, true),
                         "Load example",
                       )
                     }
@@ -1109,6 +1218,7 @@ export default function App() {
               edge={selectedEdge}
               onDiagram={patchDiagram}
               onData={patchData}
+              onFields={patchFields}
               onType={changeType}
               onEdge={patchEdge}
               onSize={setSize}
@@ -1149,6 +1259,19 @@ export default function App() {
             {d.settings.snap ? "on" : "off"}
           </span>
         </footer>
+        {newDialog && <Modal title="Create a diagram" onClose={() => setNewDialog(false)}>
+          <div className="new-module-list">{modules.map(m => <button key={m.kind} onClick={() => createTab(m.kind)}><Icon name={m.icon} size={24}/><span><strong>{m.name} Designer</strong><small>{m.description}</small></span><Plus size={17}/></button>)}</div>
+          <div className="modal-actions"><button className="text-button" onClick={() => { setNewDialog(false); openProjectSettings(false); }}>Create a project</button><button className="secondary-button" onClick={() => setNewDialog(false)}>Cancel</button></div>
+        </Modal>}
+        {projectDialog && <Modal title={projectMode === "edit" ? "Project settings" : "Create project"} onClose={() => setProjectDialog(false)}>
+          <div className="project-form"><label className="field"><span>Project name</span><input autoFocus value={projectName} onChange={e => setProjectName(e.target.value)}/></label><label className="field"><span>Description</span><textarea rows={3} value={projectDescription} onChange={e => setProjectDescription(e.target.value)}/></label><p>{projectMode === 'edit' ? 'All open diagrams belong to this project.' : workspace.project ? 'Start a new project with an empty workflow. Save the current project first to keep your work.' : 'The open diagrams will become part of this project. You can add as many diagrams as you need.'}</p></div>
+          <div className="modal-actions"><button className="secondary-button" onClick={() => setProjectDialog(false)}>Cancel</button><button className="primary-button" disabled={!projectName.trim()} onClick={() => {
+            const next = { id: projectMode === 'edit' ? workspace.project!.id : newId(), name: projectName.trim(), description: projectDescription };
+            const action = () => { if (projectMode === 'edit') workspace.setProject(next); else { workspace.createProject(next, !workspace.project); if (workspace.project) void flow.setViewport({ x: 0, y: 0, zoom: 1 }); } };
+            setProjectDialog(false);
+            if (projectMode === 'create' && workspace.project && workspace.dirty) setPending({ title: 'Create a new project?', body: 'Save the current project to keep all its diagrams.', label: 'Create project', action, saveAction: saveProject }); else action();
+          }}>{projectMode === 'edit' ? "Apply" : "Create project"}</button></div>
+        </Modal>}
         {context && (
           <div
             className="context-menu dropdown"
@@ -1318,7 +1441,7 @@ export default function App() {
               <button
                 className="primary-button"
                 onClick={() => {
-                  save();
+                  if (!(pending.saveAction ? pending.saveAction() : workspace.project ? saveProject() : save())) { setPending(null); return; }
                   pending.action();
                   setPending(null);
                 }}

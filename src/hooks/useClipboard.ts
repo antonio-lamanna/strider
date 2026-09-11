@@ -4,6 +4,7 @@ import type { Diagram, DiagramNode, DiagramEdge } from "../model/diagram";
 import { descendants, reparentNode, sortParentsFirst } from "../utils/geometry";
 export function useClipboard() {
   const clipboard = useRef<{
+      kind: Diagram["kind"];
       nodes: DiagramNode[];
       edges: DiagramEdge[];
     } | null>(null),
@@ -15,6 +16,7 @@ export function useClipboard() {
     );
     if (!ids.size) return false;
     clipboard.current = {
+      kind: d.kind,
       nodes: structuredClone(
         d.nodes
           .filter((n) => ids.has(n.id))
@@ -33,7 +35,7 @@ export function useClipboard() {
   }
   function paste(d: Diagram, point?: { x: number; y: number }): Diagram {
     const content = clipboard.current;
-    if (!content?.nodes.length) return d;
+    if (!content?.nodes.length || ((d.kind === "data-model") !== (content.kind === "data-model"))) return d;
     count.current++;
     const ids = new Map(content.nodes.map((n) => [n.id, newId()]));
     const roots = content.nodes.filter(
