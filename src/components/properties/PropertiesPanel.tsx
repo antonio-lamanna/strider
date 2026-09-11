@@ -353,11 +353,11 @@ export function PropertiesPanel(p: Props) {
                     <div className="unit-input">
                       <input
                         type="number"
-                        min={150}
+                        min={node.data.displayMode === "icon" ? 40 : 150}
                         max={20000}
                         value={Math.round(layout.width)}
                         onChange={(e) => {
-                          if (Number(e.target.value) >= 150)
+                          if (Number(e.target.value) >= (node.data.displayMode === "icon" ? 40 : 150))
                             p.onSize(
                               node.id,
                               Number(e.target.value),
@@ -375,7 +375,9 @@ export function PropertiesPanel(p: Props) {
                         min={
                           isContainer(node)
                             ? 140
-                            : node.data.kind === "ai-agent"
+                            : node.data.displayMode === "icon"
+                              ? 40
+                              : node.data.kind === "ai-agent"
                               ? 96
                               : 62
                         }
@@ -485,7 +487,7 @@ export function PropertiesPanel(p: Props) {
                 <small>Flow properties</small>
               </div>
             </div>
-            {p.diagram.kind === 'data-model' && <Section title="Relationship"><Field label="Cardinality"><select value={String(edge.data?.properties.cardinality ?? '1:N')} onChange={e => p.onEdge(edge.id, {}, { properties: { ...edge.data?.properties, cardinality: e.target.value } })}>{['1:1', '1:N', 'N:1', 'N:N'].map(c => <option key={c}>{c}</option>)}</select></Field></Section>}
+            {p.diagram.kind === 'data-model' && <Section title="Relationship"><Field label="Cardinality"><select value={String(edge.data?.properties.cardinality ?? '1:N')} onChange={e => p.onEdge(edge.id, {}, { properties: { ...edge.data?.properties, cardinality: e.target.value } })}>{['1:1', '1:N', 'N:1', 'N:N'].map(c => <option key={c}>{c}</option>)}</select></Field><button className="secondary-button full-width" onClick={() => p.onEdge(edge.id, {}, { properties: { ...edge.data?.properties, cardinality: edge.data?.properties.cardinality ?? "1:N" } })}>Repair relationship</button><p className="field-hint">For a many-side unique field, repair adds a separate foreign key and reconnects this relationship. Shared primary keys belong to 1:1 relationships. N:N requires a junction table.</p></Section>}
             <Section title="Connection">
               <Field label="Label">
                 <input

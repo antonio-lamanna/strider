@@ -56,9 +56,9 @@ export function nodeLayout(n: DiagramNode) {
     return { width: n.data.sizeMode === "manual" ? Math.max(260, n.width ?? natural) : Math.min(620, natural), height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, 48 + Math.max(1, fields.length) * 32 + 4), labelLines: [n.data.label], descriptionLines: [], group, event, gateway };
   }
   if (n.data.displayMode === "icon" && !group && !event && !gateway) {
-    const width = n.data.sizeMode === "manual" ? Math.max(100, n.width ?? 120) : 120;
-    const labelLines = wrapText(n.data.label, width - 8);
-    return { width, height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, 66 + labelLines.length * 19), labelLines, descriptionLines: [], group, event, gateway };
+    const width = n.data.sizeMode === "manual" ? Math.max(40, n.width ?? 64) : 64;
+    const labelLines = wrapText(n.data.label, width, 11);
+    return { width, height: n.data.sizeMode === "manual" ? Math.max(40, n.height ?? 64) : 64, labelLines, descriptionLines: [], group, event, gateway };
   }
   if (group)
     return {
@@ -266,7 +266,7 @@ export function diagramBounds(nodes: DiagramNode[], edges: DiagramEdge[] = []) {
   const points = nodes.flatMap((n) => {
     const p = absolutePosition(n, nodes),
       s = nodeLayout(n);
-    return [p, { x: p.x + s.width, y: p.y + s.height }];
+    return [p, { x: p.x + s.width, y: p.y + s.height + (n.data.displayMode === "icon" && !s.group && !s.event && !s.gateway ? 4 + s.labelLines.length * 14 : 0) }];
   });
   edges.forEach((e) => {
     if (routedGeometry(e, nodes)) points.push(...e.data!.route!.points);

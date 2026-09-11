@@ -1,3 +1,4 @@
+import { reconcileRelationship } from "./model/relationships";
 import release from "../public/version.json";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -35,7 +36,7 @@ import { WorkspaceBar } from "./components/toolbar/WorkspaceBar";
 import { parseFile, serializeProject } from "./services/projectXml";
 import { cleanDiagram, fingerprint } from "./model/diagram";
 import { exportExcel } from "./services/excelExport";
-import { createField, withFields, fieldFromHandle } from "./model/dataModel";
+import { createField, withFields, } from "./model/dataModel";
 import type { DataField, DiagramKind } from "./model/diagram";
 import {
   absolutePosition,
@@ -384,7 +385,7 @@ export default function App() {
     data?: Partial<WorkflowEdgeData>,
   ) {
     commit(
-      (d) => ({
+      (d) => reconcileRelationship({
         ...d,
         edges: d.edges.map((e) =>
           e.id === id
@@ -401,7 +402,7 @@ export default function App() {
               }
             : e,
         ),
-      }),
+      }, data?.properties?.cardinality ? id : ""),
       `edge:${id}:${Object.keys(patch).join(",")}:${Object.keys(data ?? {}).join(",")}`,
     );
   }
@@ -469,12 +470,12 @@ export default function App() {
                 ...n,
                 width: Math.min(
                   20000,
-                  Math.max(isContainer(n) ? 220 : 150, width),
+                  Math.max(isContainer(n) ? 220 : n.data.displayMode === "icon" ? 40 : 150, width),
                 ),
                 height: Math.min(
                   20000,
                   Math.max(
-                    isContainer(n) ? 140 : n.data.kind === "ai-agent" ? 96 : 62,
+                    isContainer(n) ? 140 : n.data.displayMode === "icon" ? 40 : n.data.kind === "ai-agent" ? 96 : 62,
                     height,
                   ),
                 ),
@@ -829,8 +830,7 @@ export default function App() {
           label: "",
           data: d.kind === "data-model" ? { semantic: "data", lineStyle: "solid", properties: { cardinality: "1:N" } } : { semantic: "control", lineStyle: "auto", properties: {} },
         };
-        const nodes = d.kind === "data-model" ? d.nodes.map(n => n.id === connection.target ? withFields(n, (n.data.fields ?? []).map(f => f.id === fieldFromHandle(connection.targetHandle) ? { ...f, foreignKey: true } : f)) : n) : d.nodes;
-        return { ...d, nodes, edges: [...d.edges, e] };
+        return reconcileRelationship({ ...d, edges: [...d.edges, e] }, e.id);
       }),
     [commit],
   );

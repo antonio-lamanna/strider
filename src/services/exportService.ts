@@ -85,8 +85,9 @@ export function buildSvg(
         body += `<path d="M0 ${y + 32}H${s.width}" stroke="${border}" stroke-opacity=".5"/>${text(f.primaryKey ? 'PK' : f.foreignKey ? 'FK' : '·', 13, y + 21, 11, f.primaryKey ? '#b18c3e' : c)}${text(f.name + (!f.nullable ? ' *' : '') + (f.primaryKey && f.foreignKey ? ' FK' : ''), 42, y + 21, 13, ink)}${text(f.dataType, s.width - 14, y + 21, 12, muted, 'end', 400)}`;
       });
     } else if (n.data.displayMode === "icon" && !s.event && !s.gateway) {
-      body = icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, (s.width - 48) / 2, 6, 48, c);
-      s.labelLines.forEach((line, i) => body += text(line, s.width / 2, 78 + i * 19, 14, ink, "middle"));
+      const iconSize = Math.max(20, Math.min(s.width, s.height) - 16);
+      body = icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, (s.width - iconSize) / 2, (s.height - iconSize) / 2, iconSize, c);
+      s.labelLines.forEach((line, i) => body += text(line, s.width / 2, s.height + 15 + i * 14, 11, ink, "middle"));
     } else if (s.event) {
       const cx = s.width / 2;
       body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, cx - 8, 14, 16, c)}`;
