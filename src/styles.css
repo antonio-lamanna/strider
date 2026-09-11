@@ -1902,18 +1902,22 @@ hr {
 .project-title { min-width: 0; }
 .project-title strong { font-size: 13px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; }
 .project-title span { color: var(--muted); font-size: 12px; margin-left: 12px; font-weight: 400; }
-.diagram-tabs { display: flex; align-items: stretch; min-height: 40px; overflow-x: auto; padding: 0 12px; }
-.diagram-tab { display: flex; flex-shrink: 0; align-items: center; border-right: 1px solid var(--border); position: relative; max-width: 260px; }
-.diagram-tab.active { background: var(--canvas); }
-.diagram-tab.active:after { content: ''; position: absolute; height: 2px; bottom: 0; left: 12px; right: 12px; background: var(--brand-accent); }
-.diagram-tab > button:first-child { display: flex; align-items: center; gap: 9px; padding: 11px 8px 11px 14px; min-width: 0; font-size: 13px; }
+.diagram-tabs { display: flex; align-items: center; gap: 6px; min-height: 48px; overflow-x: auto; padding: 6px 16px; background: var(--soft); scrollbar-width: thin; }
+.diagram-tab { display: flex; flex-shrink: 0; align-items: center; max-width: 260px; min-height: 34px; border: 1px solid transparent; border-radius: 7px; background: transparent; transition: background .15s, border-color .15s; }
+.diagram-tab:hover { background: var(--hover); }
+.diagram-tab.active { background: var(--surface); border-color: var(--border-strong); box-shadow: 0 1px 3px #00000008; }
+.diagram-tab > button { appearance: none; -webkit-appearance: none; border: 0; background: transparent; margin: 0; font: inherit; color: var(--muted); cursor: pointer; box-shadow: none; }
+.diagram-tab > button:first-child { display: flex; align-items: center; gap: 8px; padding: 8px 7px 8px 11px; min-width: 0; font-size: 13px; line-height: 18px; text-align: left; border-radius: 6px; }
 .diagram-tab > button:first-child > span { max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.diagram-tab svg { flex-shrink: 0; color: var(--muted); }
-.diagram-tab.active svg { color: var(--brand-accent); }
-.close-tab { width: 25px; height: 25px; display: grid; place-items: center; margin-right: 5px; border-radius: 4px; }
-.close-tab:hover { background: var(--hover); }
+.diagram-tab.active > button:first-child { color: var(--ink); font-weight: 500; }
+.diagram-tab svg { flex-shrink: 0; }
+.diagram-tab.active > button:first-child > svg { color: var(--brand-accent); }
+.diagram-tab > .close-tab { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; margin-right: 5px; border-radius: 4px; color: var(--muted); opacity: .55; }
+.diagram-tab:hover > .close-tab, .diagram-tab.active > .close-tab, .diagram-tab:focus-within > .close-tab { opacity: 1; }
+.diagram-tab > .close-tab:hover { background: var(--hover); color: var(--ink); }
+.diagram-tab > button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .tab-dirty { width: 5px; height: 5px; border-radius: 50%; background: var(--brand-accent); flex-shrink: 0; display: inline-block; }
-.new-tab { margin: auto 6px; flex-shrink: 0; }
+.new-tab { margin: 0 2px; flex-shrink: 0; }
 .export-option { padding: 11px 12px; display: flex; gap: 9px; align-items: center; font-size: 13px; border-bottom: 1px solid var(--border); }
 .export-option input { accent-color: var(--brand-accent); }
 .new-module-list { display: grid; gap: 10px; padding: 20px 24px; }
@@ -1951,3 +1955,8 @@ hr {
 .custom-node-icon { width: 20px; height: 20px; object-fit: contain; }
 .custom-icon-preview { display: flex; align-items: center; gap: 12px; }.custom-icon-preview img { width: 36px; height: 36px; object-fit: contain; }
 @media(max-width: 1000px) { .project-title span { display: none; }.top-toolbar { gap: 10px; }.brand { width: 140px; }.project-title strong { max-width: 220px; } }
+
+.field-card .field-datatype { display: block; width: 100%; min-width: 0; height: 34px; padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 5px; background-color: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; color-scheme: inherit; }
+.field-card .field-datatype:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.field-datatype optgroup { font-weight: 600; color: var(--ink); background: var(--surface); }
+.field-datatype option { font-weight: 400; }

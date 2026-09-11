@@ -98,3 +98,12 @@ Examples: `examples/workflow.xml`, `examples/data-model.xml`, `examples/architec
 ### Verification
 
 Run `npm test` for legacy workflow regression tests, module/project XML round trips, corrupt-file rejection, custom-icon and transparent SVG exports, field link stability, and independent tab history. The Excel output was separately opened with an independent XLSX parser to verify sheets, key values and relationship endpoints. Browser interaction/visual QA of this release has not been performed in this session.
+
+
+### Datatype selector and tabs update
+
+Field types now use a native select with **Standard** and **Dataverse** optgroups. Dataverse selections are saved with a `Dataverse:` prefix so they stay distinct from standard SQL types in XML, diagram labels and Excel. Existing custom types remain selectable when reopening a saved model. The catalog follows [Microsoft Learn column types](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/types-of-fields) and [Autonumber](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/autonumber-fields). It is a modeling catalog, including system-managed Dataverse columns.
+
+Diagram tabs explicitly reset browser button styles and use the shared light/dark surface, borders, text and accent tokens.
+
+Additional properties are optional XML-preserved metadata for integrations and documentation. They do not execute business logic. Recognized properties such as AI agent model/memory/tools and data-model relationship cardinality also contribute to their visual labels.

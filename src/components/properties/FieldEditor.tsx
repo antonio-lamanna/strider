@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import type { DataField } from '../../model/diagram';
-import { createField, dataTypes } from '../../model/dataModel';
+import { createField, dataTypes, dataTypeGroups } from '../../model/dataModel';
 import { Plus, Trash2, ArrowUp, ArrowDown, ChevronDown } from '../ui/Icon';
 export function FieldEditor({ fields, onChange }: { fields: DataField[]; onChange: (fields: DataField[]) => void }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const update = (id: string, patch: Partial<DataField>) => onChange(fields.map(f => f.id === id ? { ...f, ...patch } : f));
   function move(i: number, delta: number) { const next = [...fields]; [next[i], next[i + delta]] = [next[i + delta], next[i]]; onChange(next); }
   return <section className="property-section field-editor"><h3>Fields <span>{fields.length}</span></h3>
-    <datalist id="data-types">{dataTypes.map(t => <option key={t} value={t}/>)}</datalist>
     {fields.map((f, i) => <div className="field-card" key={f.id}>
       <div className="field-card-heading"><span>{i + 1}</span><input aria-label={`Field ${i + 1} name`} value={f.name} onChange={e => update(f.id, { name: e.target.value })}/><button className="icon-button danger" aria-label={`Delete field ${f.name}`} title="Delete field and its relationships" onClick={() => onChange(fields.filter(n => n.id !== f.id))}><Trash2 size={14}/></button></div>
-      <input aria-label={`Data type for ${f.name}`} list="data-types" value={f.dataType} placeholder="Type or select a data type" onChange={e => update(f.id, { dataType: e.target.value })}/>
+      <select className="field-datatype" aria-label={`Data type for ${f.name}`} value={f.dataType} onChange={e => update(f.id, { dataType: e.target.value })}>
+        {dataTypeGroups.map(group => <optgroup key={group.label} label={group.label}>{group.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</optgroup>)}
+        {!dataTypes.includes(f.dataType) && <optgroup label="Saved custom type"><option value={f.dataType}>{f.dataType || 'Select a data type'}</option></optgroup>}
+      </select>
       <div className="field-flags">
         <label><input type="checkbox" checked={f.primaryKey} onChange={e => update(f.id, { primaryKey: e.target.checked, ...(e.target.checked ? { nullable: false } : {}) })}/>PK</label>
         <label><input type="checkbox" checked={f.foreignKey} onChange={e => update(f.id, { foreignKey: e.target.checked })}/>FK</label>
