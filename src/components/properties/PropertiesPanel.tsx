@@ -1,3 +1,5 @@
+import { productPresets, findProduct, supportsProductIcon } from "../../config/productIcons";
+import { NodeIcon } from "../ui/NodeIcon";
 import { FieldEditor } from "./FieldEditor";
 import { readCustomIcon } from "../../services/customIcon";
 import type { DataField } from "../../model/diagram";
@@ -14,7 +16,7 @@ import type {
 } from "../../model/diagram";
 import { isContainer, isEvent } from "../../model/diagram";
 import { nodeTemplates, typeLabel } from "../../config/nodeTypes";
-import { systemPresets } from "../../config/systemPresets";
+const systemPresets = productPresets;
 import { descendants, nodeLayout } from "../../utils/geometry";
 import {
   Icon,
@@ -190,7 +192,7 @@ export function PropertiesPanel(p: Props) {
               style={{ "--accent": node.data.color } as CSSProperties}
             >
               <span className="summary-icon accent">
-                <Icon name={node.data.icon} size={21} />
+                <NodeIcon data={node.data} size={21} />
               </span>
               <div>
                 <strong>{typeLabel(node.data.kind, node.data.subtype)}</strong>
@@ -251,6 +253,9 @@ export function PropertiesPanel(p: Props) {
             </Section>
             {node.data.kind === "table" && <FieldEditor key={node.id} fields={node.data.fields ?? []} onChange={fields => p.onFields(node.id, fields)}/>}
             <Section title="Appearance">
+              {supportsProductIcon(node.data) && <Field label="Icon mode" hint={node.data.customIcon ? "Your uploaded icon takes priority. Remove it to show the chosen style." : node.data.iconMode === "product" && !findProduct(node.data.system)?.svg ? "No approved product artwork available; the standard icon is used." : "Applies only to this element."}>
+                <select aria-label="Element icon mode" value={node.data.iconMode ?? "standard"} onChange={e => p.onData(node.id, { iconMode: e.target.value as "standard" | "product" })}><option value="standard">Standard</option><option value="product">Product</option></select>
+              </Field>}
               {p.diagram.kind === "architecture" && !isContainer(node) && !isEvent(node) && node.data.kind !== "gateway" && <Field label="Display"><select aria-label="Display mode" value={node.data.displayMode ?? "card"} onChange={e => p.onData(node.id, { displayMode: e.target.value as "card" | "icon" })}><option value="card">Card</option><option value="icon">Icon only</option></select></Field>}
               <Field label="System preset">
                 <select

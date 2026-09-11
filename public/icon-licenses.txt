@@ -1,0 +1,254 @@
+STRIDER — ICON SOURCES AND LICENSE NOTICES
+Reviewed 2026-09-11
+
+Product names and logos are trademarks of their respective owners. Icons identify products in user-authored diagrams, not STRIDER's identity. No endorsement or affiliation is implied.
+
+Simple Icons 16.30.0 (official npm package, selected named imports only). Project license: CC0-1.0. This does not grant rights to all depicted trademarks or mean each logo is CC0. Missing per-icon license metadata is recorded as unspecified, not unrestricted.
+https://github.com/simple-icons/simple-icons
+
+SAP (sap)
+Source: https://www.sap.com
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Appian (appian)
+Source: https://appian.com
+Guidelines: https://assets.appian.com/uploads/assets/Appian_BrandGuidelines_Newsroom.pdf
+Individual license metadata: Unspecified
+
+UiPath (uipath)
+Source: https://www.uipath.com/newsroom
+Guidelines: https://brandguidelines.uipath.com
+Individual license metadata: Unspecified
+
+Anthropic (anthropic)
+Source: https://www.anthropic.com
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Snowflake (snowflake)
+Source: https://www.snowflake.com/brand-guidelines/
+Guidelines: https://www.snowflake.com/brand-guidelines/
+Individual license metadata: Unspecified
+
+Databricks (databricks)
+Source: https://www.databricks.com
+Guidelines: https://brand.databricks.com/Styleguide/Guide/
+Individual license metadata: Unspecified
+
+Docker (docker)
+Source: https://www.docker.com/company/newsroom/media-resources
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Kubernetes (kubernetes)
+Source: https://github.com/kubernetes/kubernetes/tree/cac53883f4714452f3084a22e4be20d042a9df33/logo
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+GitHub (github)
+Source: https://github.com/logos
+Guidelines: https://github.com/logos
+Individual license metadata: Unspecified
+
+Jira (jira)
+Source: https://atlassian.design/resources/logo-library
+Guidelines: https://atlassian.design/foundations/logos/
+Individual license metadata: Unspecified
+
+Confluence (confluence)
+Source: https://www.atlassian.com/company/news/press-kit
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Gmail (gmail)
+Source: https://fonts.gstatic.com/s/i/productlogos/gmail_2020q4/v8/192px.svg
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Google Drive (googledrive)
+Source: https://developers.google.com/drive/web/branding
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Google Sheets (googlesheets)
+Source: https://sheets.google.com
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+Google Cloud (googlecloud)
+Source: https://cloud.google.com
+Guidelines: Not supplied in package metadata; consult the source and owner.
+Individual license metadata: Unspecified
+
+PostgreSQL (postgresql)
+Source: https://wiki.postgresql.org/wiki/Logo
+Guidelines: https://www.postgresql.org/about/policies/trademarks/
+Individual license metadata: Unspecified
+
+MICROSOFT OFFICIAL ARCHITECTURE ASSETS
+SVG files copied without editing artwork.
+Sources:
+https://learn.microsoft.com/en-us/power-platform/guidance/icons
+https://learn.microsoft.com/en-us/dynamics365/get-started/icons
+https://learn.microsoft.com/en-us/azure/architecture/icons/
+https://learn.microsoft.com/en-us/fabric/fundamentals/icons
+
+Microsoft permits use in architectural diagrams, training materials or documentation; all other rights reserved. Keep a product label nearby. Do not crop, flip, rotate, distort or use these icons to represent your own product or service.
+
+Downloads:
+https://download.microsoft.com/download/498606aa-6d27-4f13-aa5c-1401078c153b/Power-Platform-icons-scalable.zip
+https://download.microsoft.com/download/498606aa-6d27-4f13-aa5c-1401078c153b/Dynamics-365-icons-scalable.zip
+https://arch-center.azureedge.net/icons/Azure_Public_Service_Icons_V24.zip
+https://github.com/microsoft/fabric-samples/blob/main/docs-samples/Icons.zip (Fabric package 6.1.0)
+
+Asset SHA-256 inventory:
+azure-api-management.svg cf794288575f2f7b080c50aa8319d42b02a2f2ae5351e4712c574353fc801f9a
+azure-app-service.svg 529d83fc80637a96b6d27f6cfac7536e1c5f9b1b67f58aef4e2e3d6f47fd4925
+azure-cosmos-db.svg b6f1f2afac15762d1de44366d34984c5a3e6e58f94d9e81407ac01565212e8e3
+azure-data-factory.svg a16a9c345c72e9342874425ea5883900df601ec815e5babbcf67085d5e2fa582
+azure-event-hubs.svg 55187fecea1de7b135e53cc100bc765ad06ab419365263456bf548906c3107f8
+azure-functions.svg 1a6c9c108d5f63f7b78bc6fbc464059acd2eaa8c1d111e9bcd28a8b2cdf470b9
+azure-key-vault.svg 712b426f54f0fc50d0816dc79df709daa7ac5f93ccaf4e9b3527f627f6e9ad97
+azure-kubernetes-service.svg 81954a481503057498d543a51863b2eb4673284e109662cdc421051d11dba25c
+azure-service-bus.svg eaf42cb87aedf608f60d40b601eb86491daaa71b8eab40a935e8e7fa2e62a2cf
+azure-sql-database.svg a26124a2b188ccf910520c935c726f7364e0f5935d7a4319ebcab9c80a40e475
+azure-synapse-analytics.svg 7eacb3ab0ffd5b76cc06e34ff41333aed79db0d41852397468486ddb63c2c314
+azure-virtual-machines.svg 092d18ffadec9ec0e5af129186dc7bc2a80544011e55f965604ed4b13873e0fc
+copilot-studio.svg c614fa6b9b7d33048c6c4efcdd508e5b7818d296cbd1cd7d8848bb2dd1be4fd0
+dataverse.svg df71c0111148d116515a02c5cb07483caad2bcb779664fa16fd837a4709504ab
+dynamics-365.svg 5017e931a0f5e724247a9c49e15e22bb22e252d5343e0a40f7f38366d2aeb388
+microsoft-fabric.svg ef80d2edbfc1b045241d2e9550b7930b648d8018e0274116a3df6d6ccf3adbf9
+power-apps.svg c357907ad0a2d24a6d8c82b23fe4d2aaa4a4524076991f74770fc043a4cc455a
+power-automate.svg 2025db7bb3feec49d75681934b8561fb958cf11bdf0e2acf6e2b28db5c755e8d
+power-bi.svg 264abad01f50acaffb697b3ede22215b7d87f387c1af92f0a0b14117d2c2e4f1
+power-pages.svg 7fdc8facba1b64c4e30fbed3d331ecab78746d0d29c29bae593b18788e870631
+power-platform.svg c58871d6adac53a51512341e65055d0ec12f29948a001666c11dc7b5bb5fe142
+
+FABRIC PACKAGE LICENSE
+MIT License
+
+Copyright (c) 2025 Microsoft Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+SIMPLE ICONS PROJECT LICENSE
+# CC0 1.0 Universal
+
+## Statement of Purpose
+
+The laws of most jurisdictions throughout the world automatically confer exclusive Copyright and Related Rights (defined below) upon the creator and subsequent owner(s) (each and all, an “owner”) of an original work of authorship and/or a database (each, a “Work”).
+
+Certain owners wish to permanently relinquish those rights to a Work for the purpose of contributing to a commons of creative, cultural and scientific works (“Commons”) that the public can reliably and without fear of later claims of infringement build upon, modify, incorporate in other works, reuse and redistribute as freely as possible in any form whatsoever and for any purposes, including without limitation commercial purposes. These owners may contribute to the Commons to promote the ideal of a free culture and the further production of creative, cultural and scientific works, or to gain reputation or greater distribution for their Work in part through the use and efforts of others.
+
+For these and/or other purposes and motivations, and without any expectation of additional consideration or compensation, the person associating CC0 with a Work (the “Affirmer”), to the extent that he or she is an owner of Copyright and Related Rights in the Work, voluntarily elects to apply CC0 to the Work and publicly distribute the Work under its terms, with knowledge of his or her Copyright and Related Rights in the Work and the meaning and intended legal effect of CC0 on those rights.
+
+1. Copyright and Related Rights. A Work made available under CC0 may be protected by copyright and related or neighboring rights (“Copyright and Related Rights”). Copyright and Related Rights include, but are not limited to, the following:
+    1. the right to reproduce, adapt, distribute, perform, display, communicate, and translate a Work;
+    2. moral rights retained by the original author(s) and/or performer(s);
+    3. publicity and privacy rights pertaining to a person’s image or likeness depicted in a Work;
+    4. rights protecting against unfair competition in regards to a Work, subject to the limitations in paragraph 4(i), below;
+    5. rights protecting the extraction, dissemination, use and reuse of data in a Work;
+    6. database rights (such as those arising under Directive 96/9/EC of the European Parliament and of the Council of 11 March 1996 on the legal protection of databases, and under any national implementation thereof, including any amended or successor version of such directive); and
+    7. other similar, equivalent or corresponding rights throughout the world based on applicable law or treaty, and any national implementations thereof.
+
+2. Waiver. To the greatest extent permitted by, but not in contravention of, applicable law, Affirmer hereby overtly, fully, permanently, irrevocably and unconditionally waives, abandons, and surrenders all of Affirmer’s Copyright and Related Rights and associated claims and causes of action, whether now known or unknown (including existing as well as future claims and causes of action), in the Work (i) in all territories worldwide, (ii) for the maximum duration provided by applicable law or treaty (including future time extensions), (iii) in any current or future medium and for any number of copies, and (iv) for any purpose whatsoever, including without limitation commercial, advertising or promotional purposes (the “Waiver”). Affirmer makes the Waiver for the benefit of each member of the public at large and to the detriment of Affirmer’s heirs and successors, fully intending that such Waiver shall not be subject to revocation, rescission, cancellation, termination, or any other legal or equitable action to disrupt the quiet enjoyment of the Work by the public as contemplated by Affirmer’s express Statement of Purpose.
+
+3. Public License Fallback. Should any part of the Waiver for any reason be judged legally invalid or ineffective under applicable law, then the Waiver shall be preserved to the maximum extent permitted taking into account Affirmer’s express Statement of Purpose. In addition, to the extent the Waiver is so judged Affirmer hereby grants to each affected person a royalty-free, non transferable, non sublicensable, non exclusive, irrevocable and unconditional license to exercise Affirmer’s Copyright and Related Rights in the Work (i) in all territories worldwide, (ii) for the maximum duration provided by applicable law or treaty (including future time extensions), (iii) in any current or future medium and for any number of copies, and (iv) for any purpose whatsoever, including without limitation commercial, advertising or promotional purposes (the “License”). The License shall be deemed effective as of the date CC0 was applied by Affirmer to the Work. Should any part of the License for any reason be judged legally invalid or ineffective under applicable law, such partial invalidity or ineffectiveness shall not invalidate the remainder of the License, and in such case Affirmer hereby affirms that he or she will not (i) exercise any of his or her remaining Copyright and Related Rights in the Work or (ii) assert any associated claims and causes of action with respect to the Work, in either case contrary to Affirmer’s express Statement of Purpose.
+
+4. Limitations and Disclaimers.
+    1. No trademark or patent rights held by Affirmer are waived, abandoned, surrendered, licensed or otherwise affected by this document.
+    2. Affirmer offers the Work as-is and makes no representations or warranties of any kind concerning the Work, express, implied, statutory or otherwise, including without limitation warranties of title, merchantability, fitness for a particular purpose, non infringement, or the absence of latent or other defects, accuracy, or the present or absence of errors, whether or not discoverable, all to the greatest extent permissible under applicable law.
+    3. Affirmer disclaims responsibility for clearing rights of other persons that may apply to the Work or any use thereof, including without limitation any person’s Copyright and Related Rights in the Work. Further, Affirmer disclaims responsibility for obtaining any necessary consents, permissions or other rights required for any use of the Work.
+    4. Affirmer understands and acknowledges that Creative Commons is not a party to this document and has no duty or obligation with respect to this CC0 or use of the Work.
+
+For more information, please see <https://creativecommons.org/publicdomain/zero/1.0>.
+
+
+SIMPLE ICONS DISCLAIMER
+# Disclaimer
+
+Simple Icons asks that its users read this disclaimer fully before including an icon in their project.
+
+## Licenses, Copyrights & Trademarks
+
+> **Important**\
+> The addition of licenses to Simple Icons is an ongoing project. Hence, the absence of license data for a particular icon does not imply that the icon is not released under a license.
+
+<!-- markdownlint-disable-next-line no-blanks-blockquote -->
+
+> **Note**\
+> Simple Icons is released under CC0 - though that doesn't mean to imply that all icons within the project are also CC0. Please see individual licenses where available.
+
+Simple Icons provides data on the license under which icons are available. We ask users to carefully consider this when using an icon. As licenses are subject to change we also ask our users to regularly check if the license of the icons they use have been changed.
+
+The license under which an icon is available can be found in the icon's entry in the JSON data file in the NPM and Packagist packages, or through the license link on the icon's card on [the Simple Icons website].
+
+As we rely largely on our community to help us keep Simple Icons up-to-date, the license data for an icon may be outdated. If you find that the license data provided is outdated, please [submit an issue][icon-outdated-issues] to [the Simple Icons GitHub repository].
+
+If an icon includes a registered trademark (`®`) or trademark symbol (`™`) the recommendations outlined in [the Simple Icons Contributing Guidelines] are followed to decide whether to include the symbol or not.
+
+Simple Icons cannot be held responsible for any legal activity raised by a brand, or users of the package. We ask that our users seek the correct permissions to use the icons relevant to their project.
+
+## Brand Guidelines
+
+> **Note**\
+> The addition of guidelines to Simple Icons is an ongoing project. In the meantime, users of Simple Icons are instead encouraged to check the `source` URL as, in some cases, the icon will have been sourced from official guidelines. The lack of a `guidelines` entry for a particular brand does not imply that the brand has no guidelines.
+
+Simple Icons provides a link to a brand's _branding guidelines_ (or similar) if the brand provides one. We ask our users read these guidelines and ensure their usage of the brand's icon is in accordance with them. As guidelines are subject to change we also ask our users to regularly check if the brand guidelines of the icons they use have been updated.
+
+The brand guidelines can be found in the icon's entry in the JSON data file in the NPM and Packagist packages, or through the "Brand Guidelines" link on the icon's card on [the Simple Icons website].
+
+As we rely largely on our community to help us keep Simple Icons up-to-date, the guidelines link for a brand may be outdated. If you find that the guidelines are outdated, please [submit an issue][icon-outdated-issues] to [the Simple Icons GitHub repository].
+
+## Update of Brands
+
+Should a brand wish for their icon or data to be updated, please [submit an issue][icon-outdated-issues] to [the Simple Icons GitHub repository]. In the issue, please explain your affiliation with the company and reasons for the update. We generally release updates once a week, but can make exceptions for immediate updates of brands.
+
+## Removal of Brands
+
+Should a brand wish for their icon to be removed from the package, contact `removals at simpleicons dot org` explaining your affiliation with the company, and reasons for removal. Alternatively, it is also possible to [submit an issue][removal-issues] on [the Simple Icons GitHub repository] with the same information. We generally remove icons that no longer [meet our criteria] twice a year in our major releases - but can occasionally make exceptions for immediate removal of brands.
+
+The pull request of icon removal must be submitted by the Simple Icons maintainer.
+
+[meet our criteria]: https://github.com/simple-icons/simple-icons/blob/develop/CONTRIBUTING.md#requesting-an-icon
+[icon-outdated-issues]: https://github.com/simple-icons/simple-icons/issues/new?assignees=&labels=update+icon%2Fdata&template=icon_update.yml&title=Update%3A+
+[removal-issues]: https://github.com/simple-icons/simple-icons/issues/new?assignees=&labels=breaking+change&template=icon_removal.yml&title=Remove%3A+
+[the simple icons contributing guidelines]: https://github.com/simple-icons/simple-icons/blob/develop/CONTRIBUTING.md#icon-guidelines
+[the simple icons github repository]: https://github.com/simple-icons/simple-icons
+[the simple icons website]: https://simpleicons.org/
+
+
+LUCIDE LICENSE (EXISTING STANDARD ICONS)
+ISC License
+
+Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
