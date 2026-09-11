@@ -1,4 +1,4 @@
-import { productCategories, productSearchTerms } from "../../config/productIcons";
+import { productPresets, productSearchTerms } from "../../config/productIcons";
 import { NodeIcon } from "../ui/NodeIcon";
 import type { IconMode } from "../../model/diagram";
 import { useMemo, useState, useRef } from "react";
@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
 import { architectureCategories, tableTemplate } from "../../config/modules";
 import type { DiagramKind } from "../../model/diagram";
 import { nodeCategories } from "../../config/nodeTypes";
-import { systemPresets } from "../../config/systemPresets";
+
 import type { NodeTemplate } from "../../model/diagram";
 import { ChevronDown, Search, X, PanelLeftClose, Plus } from "../ui/Icon";
 const mime = "application/automation-node";
@@ -51,12 +51,12 @@ export function Palette({
     );
   const categories = useMemo(
     () =>
-      iconMode === "product" && kind !== "data-model" ? productCategories : (tab === "components" || kind === "data-model")
+      (tab === "components" || kind === "data-model")
         ? kind === "architecture" ? architectureCategories : kind === "data-model" ? [{ name: "Data model", items: [tableTemplate] }] : nodeCategories
-        : Array.from(new Set(systemPresets.map((p) => p.category))).map(
+        : Array.from(new Set(productPresets.map((p) => p.category))).map(
             (name) => ({
               name,
-              items: systemPresets
+              items: productPresets
                 .filter((p) => p.category === name)
                 .map(
                   (p) =>
@@ -70,7 +70,7 @@ export function Palette({
                 ),
             }),
           ),
-    [tab, kind, iconMode],
+    [tab, kind],
   );
   const filtered = categories
     .map((c) => ({
@@ -94,8 +94,7 @@ export function Palette({
           <PanelLeftClose size={16} />
         </button>
       </div>
-      {kind !== "data-model" && <div className="library-icon-mode"><div className="sizing-switch" role="group" aria-label="Library icon mode">{(["standard", "product"] as const).map(mode => <button key={mode} aria-pressed={iconMode === mode} className={iconMode === mode ? "active" : ""} onClick={() => onIconMode(mode)}>{mode === "standard" ? "Standard" : "Product"}</button>)}</div><small>Library &amp; new elements only</small></div>}
-      <div style={kind === "data-model" || iconMode === "product" ? { display: "none" } : undefined} className="palette-tabs" role="tablist" aria-label="Library type">
+      <div style={kind === "data-model" ? { display: "none" } : undefined} className="palette-tabs" role="tablist" aria-label="Library type">
         <button
           role="tab"
           aria-selected={tab === "components"}
@@ -110,9 +109,10 @@ export function Palette({
           className={tab === "systems" ? "active" : ""}
           onClick={() => setTab("systems")}
         >
-          Systems <span>{systemPresets.length}</span>
+          Systems <span>{productPresets.length}</span>
         </button>
       </div>
+      {kind !== "data-model" && <div className="library-icon-mode"><div className="sizing-switch" role="group" aria-label="Library icon mode">{(["standard", "product"] as const).map(mode => <button key={mode} aria-pressed={iconMode === mode} className={iconMode === mode ? "active" : ""} onClick={() => onIconMode(mode)}>{mode === "standard" ? "Standard" : "Product"}</button>)}</div><small>Library &amp; new elements only</small></div>}
       <div className="palette-search">
         <Search size={15} />
         <input

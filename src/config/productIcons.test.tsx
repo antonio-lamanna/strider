@@ -17,8 +17,8 @@ describe('independent icon modes', () => {
     saveIconMode('product'); const product = createNode(newNodeIconMode(template('salesforce'), loadIconMode()), {x:200,y:0});
     saveIconMode('standard');
     expect(standard.data.iconMode).toBe('standard'); expect(product.data.iconMode).toBe('product');
-    // Salesforce is absent from the approved current package: mode is retained, generic fallback is intentional.
-    expect(renderToStaticMarkup(<NodeIcon data={product.data}/>)).toContain('<svg');
+    // Salesforce has bundled flat artwork; existing node modes remain independent.
+    expect(renderToStaticMarkup(<NodeIcon data={product.data}/>)).toContain('data:image/svg+xml');
   });
   it('D-F: a local change retains identity, geometry, properties, other nodes and the next default', () => {
     saveIconMode('standard'); const nodes = ['salesforce','power-apps','sap'].map((id,i) => createNode(newNodeIconMode(template(id), loadIconMode()), {x:i*200,y:40}));
@@ -67,3 +67,6 @@ describe('independent icon modes', () => {
     }
   });
 });
+
+import { flatProductIcons } from './flatProductIcons';
+it('bundles flat, colored artwork for the additional brand catalog', () => { for (const [id, artwork] of Object.entries(flatProductIcons)) { expect(findProduct(id)?.svg, id).toBe(artwork.svg); expect(artwork.svg, id).not.toMatch(/<(?:filter|linearGradient|radialGradient)\b/); expect(artwork.svg, id).toContain('fill="#' + artwork.hex + '"'); } });

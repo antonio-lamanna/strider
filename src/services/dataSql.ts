@@ -1,3 +1,4 @@
+import { fieldsAreUnique } from '../model/relationships';
 import mysql from 'node-sql-parser/build/mysql';
 import { createDiagram, createNode, type Diagram, type DiagramNode, type JsonValue } from '../model/diagram';
 import { createField, withFields, fieldFromHandle } from '../model/dataModel';
@@ -112,6 +113,13 @@ export function importMySql(sql: string, name = 'Imported data model'): { diagra
       });
     } else if (def.resource) warnings.push(`Index or constraint not represented on ${node.data.label}: ${kind || def.resource}.`);
   }
+  // Infer cardinality only after all PK/UNIQUE declarations have been processed.
+  for (const edge of diagram.edges) {
+    const child = diagram.nodes.find(n => n.id === edge.target)!;
+    const group = edge.data!.properties.foreignKeyGroup;
+    const ids = diagram.edges.filter(e => e.data?.properties.foreignKeyGroup === group).map(e => fieldFromHandle(e.targetHandle)!);
+    edge.data!.properties.cardinality = fieldsAreUnique(child, ids) ? '1:1' : '1:N';
+  }
   return { diagram, warnings: [...new Set(warnings)] };
 }
 
@@ -163,6 +171,10 @@ export function exportMySql(diagram: Diagram): string {
     const parentFields = edges.map(e => parent.data.fields!.find(f => f.id === fieldFromHandle(reverse ? e.targetHandle : e.sourceHandle)));
     const childFields = edges.map(e => child.data.fields!.find(f => f.id === fieldFromHandle(reverse ? e.sourceHandle : e.targetHandle)));
     if (parentFields.some(f => !f) || childFields.some(f => !f)) throw new Error('Relationship references a missing field.');
+    if (first.data?.properties.cardinality !== '1:1' && fieldsAreUnique(child, childFields.map(f => f!.id))) {
+      throw new Error(`Relationship to ${child.data.label} is marked ${first.data?.properties.cardinality ?? '1:N'} but its foreign key is unique. Select the relationship and choose Repair relationship, or use 1:1 if a shared primary key is intended.`);
+    }
+    if (childFields.some((f, i) => mysqlType(f!.dataType).toUpperCase() !== mysqlType(parentFields[i]!.dataType).toUpperCase())) throw new Error('Foreign key and referenced fields must use matching SQL types.');
     const parentIds = parentFields.map(f => f!.id);
     const primaryIds = parent.data.fields!.filter(f => f.primaryKey).map(f => f.id);
     const uniqueGroups = (parent.data.properties.sqlUniqueKeys ?? []) as string[][];

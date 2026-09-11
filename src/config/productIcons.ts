@@ -1,3 +1,4 @@
+import { flatProductIcons } from "./flatProductIcons";
 import type { SimpleIcon } from "simple-icons";
 import power_bi from "../assets/products/power-bi.svg?raw";
 import microsoft_fabric from "../assets/products/microsoft-fabric.svg?raw";
@@ -84,7 +85,7 @@ function category(p: SystemPreset) {
   return p.category;
 }
 export const productIcons: ProductIcon[] = productPresets.map(p => {
-  const si = simple[p.id], ms = microsoft[p.id];
+  const si = simple[p.id], ms = microsoft[p.id], flat = flatProductIcons[p.id];
   const aliases = [p.id.replaceAll("-", " "), category(p), p.category];
   if (/^azure|^power-|copilot|dataverse|teams|outlook|sharepoint|dynamics/.test(p.id)) aliases.push("microsoft", "ms");
   if (p.category === "GCP" || p.category === "Google") aliases.push("google", "gcp");
@@ -92,8 +93,8 @@ export const productIcons: ProductIcon[] = productPresets.map(p => {
   if (/appian|uipath|automation-anywhere|blue-prism|power-automate/.test(p.id)) aliases.push("automation", "rpa", "low code");
   if (p.id === "power-bi") aliases.push("powerbi", "business intelligence", "analytics");
   if (p.id === "power-apps") aliases.push("powerapps", "low code");
-  return { ...p, category: category(p), aliases, source: ms?.source ?? si?.source ?? "Standard fallback",
-    svg: ms?.svg ?? (si ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${si.hex}"><path d="${si.path}"/></svg>` : undefined),
+  return { ...p, category: category(p), aliases, source: flat?.source ?? ms?.source ?? si?.source ?? "Standard fallback",
+    svg: flat?.svg ?? ms?.svg ?? (si ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${si.hex}"><path d="${si.path}"/></svg>` : undefined),
     guidelines: si?.guidelines, license: si?.license };
 });
 const byId = new Map(productIcons.map(p => [p.id, p]));

@@ -77,7 +77,11 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
         </div>
       </div>
     );
-  if (data.displayMode === "icon" && !layout.event && !layout.gateway) return <div className={`icon-only-node ${selected ? "is-selected" : ""}`} style={style} onDoubleClick={() => actions.editNode(id)}><div className="standalone-icon"><NodeIcon data={data} size={48}/></div><div className="symbol-label">{layout.labelLines.map((line, i) => <div key={i}>{line}</div>)}</div>{handles}</div>;
+  if (data.displayMode === "icon" && !layout.event && !layout.gateway) return <div className={`icon-only-node ${selected ? "is-selected" : ""}`} style={style} onDoubleClick={() => actions.editNode(id)}>
+    <NodeResizer isVisible={selected} minWidth={40} minHeight={40} color={data.color} onResizeStart={() => actions.beginResize(id)} onResizeEnd={actions.endResize}/>
+    <div className="standalone-icon"><NodeIcon data={data} size={Math.max(20, Math.min(layout.width, layout.height) - 16)}/></div>
+    <div className="symbol-label">{layout.labelLines.map((line, i) => <div key={i}>{line}</div>)}</div>{handles}
+  </div>;
   if (layout.event || layout.gateway)
     return (
       <div
