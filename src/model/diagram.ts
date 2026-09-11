@@ -10,6 +10,7 @@ export type JsonValue =
   | { [key: string]: JsonValue };
 export type DiagramKind = "workflow" | "data-model" | "architecture";
 export type NodeKind =
+  | "lane"
   | "table"
   | "start"
   | "end"
@@ -69,6 +70,7 @@ export interface DataField {
 export interface WorkflowNodeData extends Record<string, unknown> {
   fields?: DataField[];
   customIcon?: string;
+  displayMode?: "card" | "icon";
   kind: NodeKind;
   subtype?: string;
   label: string;
@@ -81,6 +83,8 @@ export interface WorkflowNodeData extends Record<string, unknown> {
   ports: Port[];
 }
 export interface WorkflowEdgeData extends Record<string, unknown> {
+  color?: string;
+  route?: { points: { x: number; y: number }[]; signature: string };
   semantic: EdgeSemantic;
   lineStyle: LineStyle;
   properties: Record<string, JsonValue>;
@@ -103,6 +107,7 @@ export interface Diagram {
 export type NodeTemplate = {
   fields?: DataField[];
   customIcon?: string;
+  displayMode?: "card" | "icon";
   kind: NodeKind;
   label: string;
   icon: string;
@@ -111,7 +116,7 @@ export type NodeTemplate = {
   system?: string;
 };
 export const isContainer = (n: DiagramNode) =>
-  ["group", "system-boundary", "team-boundary"].includes(n.data.kind);
+  ["group", "system-boundary", "team-boundary", "lane"].includes(n.data.kind);
 export const isEvent = (n: DiagramNode) =>
   ["start", "end", "event", "timer"].includes(n.data.kind);
 export const defaultPorts = (): Port[] => [
@@ -145,7 +150,7 @@ export function createNode(
   template: NodeTemplate,
   position: XYPosition,
 ): DiagramNode {
-  const group = ["group", "system-boundary", "team-boundary"].includes(
+  const group = ["group", "system-boundary", "team-boundary", "lane"].includes(
     template.kind,
   );
   return {

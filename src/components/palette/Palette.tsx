@@ -45,7 +45,7 @@ export function Palette({
     );
   const categories = useMemo(
     () =>
-      tab === "components"
+      (tab === "components" || kind === "data-model")
         ? kind === "architecture" ? architectureCategories : kind === "data-model" ? [{ name: "Data model", items: [tableTemplate] }] : nodeCategories
         : Array.from(new Set(systemPresets.map((p) => p.category))).map(
             (name) => ({

@@ -189,7 +189,7 @@ export function parseDiagram(xml: string): Diagram {
         );
     const n: DiagramNode = {
       id,
-      type: ["group", "system-boundary", "team-boundary"].includes(kind)
+      type: ["group", "system-boundary", "team-boundary", "lane"].includes(kind)
         ? "container"
         : "workflow",
       position: { x: number(el, "x", 0), y: number(el, "y", 0) },
@@ -206,6 +206,9 @@ export function parseDiagram(xml: string): Diagram {
         ports,
       },
     };
+    const displayMode = el.getAttribute("displayMode");
+    if (displayMode && !["card", "icon"].includes(displayMode)) throw new Error("Invalid display mode.");
+    if (displayMode) n.data.displayMode = displayMode as "card" | "icon";
     const customIcon = child(el, "custom-icon")?.textContent;
     if (customIcon) {
       if (!validCustomIcon(customIcon)) throw new Error(`Invalid custom image on ${id}. Use PNG, JPEG or WebP.`);
@@ -290,6 +293,15 @@ export function parseDiagram(xml: string): Diagram {
       !["auto", "solid", "dashed", "dotted"].includes(lineStyle)
     )
       throw new Error(`Invalid connection type or line style on ${id}.`);
+    const color = el.getAttribute("color") ?? undefined;
+    if (color && !/^#[\da-f]{6}$/i.test(color)) throw new Error("Invalid connection color.");
+    let route: import("../model/diagram").WorkflowEdgeData["route"];
+    const routeText = child(el, "route")?.textContent;
+    if (routeText) {
+      const value = JSON.parse(routeText);
+      if (!value || typeof value.signature !== "string" || !Array.isArray(value.points) || value.points.length < 2 || value.points.length > 10000 || !value.points.every((p: {x: number; y: number}) => p && Number.isFinite(p.x) && Number.isFinite(p.y))) throw new Error("Invalid connection route.");
+      route = value;
+    }
     const props = properties(el);
     if (d.kind === 'data-model' && props.cardinality !== undefined && !['1:1', '1:N', 'N:1', 'N:N'].includes(String(props.cardinality))) throw new Error(`Invalid cardinality on ${id}.`);
     return {
@@ -301,6 +313,8 @@ export function parseDiagram(xml: string): Diagram {
       targetHandle,
       label: el.getAttribute("label") ?? "",
       data: {
+        ...(color ? { color } : {}),
+        ...(route ? { route } : {}),
         semantic: semantic as EdgeSemantic,
         lineStyle: lineStyle as LineStyle,
         properties: props,

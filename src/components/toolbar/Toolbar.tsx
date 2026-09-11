@@ -14,6 +14,10 @@ import {
   Icon,
 } from "../ui/Icon";
 interface Props {
+  onSQL?: () => void;
+  onJSON?: () => void;
+  onArrange?: () => void;
+  arranging?: boolean;
   transparent: boolean;
   onTransparent: (v: boolean) => void;
   onExcel?: () => void;
@@ -97,7 +101,7 @@ export function Toolbar(p: Props) {
           <Plus size={16} />
           <span>New</span>
         </button>
-        <button className="text-button" onClick={p.onOpen} title="Open XML">
+        <button className="text-button" onClick={p.onOpen} title="Open XML, JSON or MySQL SQL">
           <FolderOpen size={16} />
           <span>Open</span>
         </button>
@@ -109,6 +113,7 @@ export function Toolbar(p: Props) {
           <Save size={16} />
           <span>Save XML</span>
         </button>
+        {p.onArrange && <button className="text-button" disabled={!p.hasNodes || p.arranging} onClick={p.onArrange}><Icon name="network" size={16}/>{p.arranging ? "Arranging…" : "Auto arrange"}</button>}
         <div className="export-control" ref={menu}>
           <button
             className="primary-button"
@@ -123,6 +128,8 @@ export function Toolbar(p: Props) {
           {exportMenu && (
             <div className="dropdown export-menu">
               <label className="export-option"><input type="checkbox" checked={p.transparent} onChange={e => p.onTransparent(e.target.checked)}/>Transparent background</label>
+              {p.onSQL && <button onClick={() => { p.onSQL?.(); setExportMenu(false); }}><Icon name="code" size={16}/><span>Export SQL<small>MySQL CREATE TABLE and foreign keys</small></span></button>}
+              {p.onJSON && <button onClick={() => { p.onJSON?.(); setExportMenu(false); }}><Icon name="braces" size={16}/><span>Export JSON<small>Complete data model</small></span></button>}
               {p.onExcel && <button onClick={() => { p.onExcel?.(); setExportMenu(false); }}><Icon name="database" size={16}/><span>Export Excel<small>Tables, fields and relationships</small></span></button>}
               <button
                 onClick={() => {

@@ -68,6 +68,7 @@ export function buildSvg(
   const groupXml = (n: DiagramNode) => {
     const at = absolutePosition(n, d.nodes),
       s = nodeLayout(n);
+    if (n.data.kind === "lane") return `<g transform="translate(${at.x} ${at.y})"><rect width="${s.width}" height="${s.height}" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}"/><path d="M40 0V${s.height}" stroke="${n.data.color}"/><g transform="translate(25 ${s.height / 2}) rotate(-90)">${text(n.data.label, 0, 0, 12, muted, "middle")}</g></g>`;
     return `<g transform="translate(${at.x} ${at.y})"><rect x="0" y="0" width="${s.width}" height="${s.height}" rx="12" fill="${n.data.color}" fill-opacity=".035" stroke="${n.data.color}" stroke-opacity=".5" stroke-dasharray="6 5"/><path d="M0 39H${s.width}" stroke="${n.data.color}" stroke-opacity=".15"/>${icon(n.data.customIcon || n.data.icon, 14, 11, 17, n.data.color)}${text(n.data.label, 39, 25, 12, muted)}</g>`;
   };
   const nodeXml = (n: DiagramNode, index: number) => {
@@ -82,6 +83,9 @@ export function buildSvg(
         const y = 48 + i * 32;
         body += `<path d="M0 ${y + 32}H${s.width}" stroke="${border}" stroke-opacity=".5"/>${text(f.primaryKey ? 'PK' : f.foreignKey ? 'FK' : '·', 13, y + 21, 11, f.primaryKey ? '#b18c3e' : c)}${text(f.name + (!f.nullable ? ' *' : '') + (f.primaryKey && f.foreignKey ? ' FK' : ''), 42, y + 21, 13, ink)}${text(f.dataType, s.width - 14, y + 21, 12, muted, 'end', 400)}`;
       });
+    } else if (n.data.displayMode === "icon" && !s.event && !s.gateway) {
+      body = icon(n.data.customIcon || n.data.icon, (s.width - 48) / 2, 6, 48, c);
+      s.labelLines.forEach((line, i) => body += text(line, s.width / 2, 78 + i * 19, 14, ink, "middle"));
     } else if (s.event) {
       const cx = s.width / 2;
       body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.customIcon || n.data.icon, cx - 8, 14, 16, c)}`;
@@ -138,11 +142,11 @@ export function buildSvg(
       const g = edgeGeometry(e, d.nodes);
       if (!g) return "";
       const c =
-          e.data?.semantic === "exception"
+          e.data?.color ?? (e.data?.semantic === "exception"
             ? "#c46666"
             : dark
               ? "#8995a6"
-              : "#929eae",
+              : "#929eae"),
         dash = dashPattern(e.data?.semantic ?? "control", e.data?.lineStyle),
         label = [e.label, e.data?.properties.cardinality].filter(Boolean).join(" · "),
         w = textWidth(label, 12, 400) + 16;

@@ -1,4 +1,5 @@
 import {
+  ChartColumn, ChartScatter,
   Server, Shield, Network, Monitor, Tablet,
   Activity,
   AppWindow,
@@ -77,6 +78,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 export const icons: Record<string, LucideIcon> = {
+  "chart-column": ChartColumn, "chart-scatter": ChartScatter,
   server: Server, shield: Shield, network: Network, monitor: Monitor, tablet: Tablet, lock: Lock,
   activity: Activity,
   "app-window": AppWindow,

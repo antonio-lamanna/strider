@@ -56,7 +56,7 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
   if (layout.group)
     return (
       <div
-        className={`container-node ${selected ? "is-selected" : ""}`}
+        className={`container-node ${data.kind === "lane" ? "lane-node" : ""} ${selected ? "is-selected" : ""}`}
         style={style}
       >
         <NodeResizer
@@ -76,6 +76,7 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
         </div>
       </div>
     );
+  if (data.displayMode === "icon" && !layout.event && !layout.gateway) return <div className={`icon-only-node ${selected ? "is-selected" : ""}`} style={style} onDoubleClick={() => actions.editNode(id)}><div className="standalone-icon">{data.customIcon ? <img src={data.customIcon} alt=""/> : <Icon name={data.icon} size={48}/>}</div><div className="symbol-label">{layout.labelLines.map((line, i) => <div key={i}>{line}</div>)}</div>{handles}</div>;
   if (layout.event || layout.gateway)
     return (
       <div

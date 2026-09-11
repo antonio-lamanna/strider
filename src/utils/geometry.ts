@@ -1,3 +1,4 @@
+import { routedGeometry } from "./routes";
 import { Position, getSmoothStepPath } from "@xyflow/react";
 import type { DiagramNode, DiagramEdge, Port } from "../model/diagram";
 import { isContainer, isEvent } from "../model/diagram";
@@ -53,6 +54,11 @@ export function nodeLayout(n: DiagramNode) {
     const fields = n.data.fields ?? [];
     const natural = Math.max(280, textWidth(n.data.label) + 75, ...fields.map(f => textWidth(f.name + f.dataType, 13) + 110));
     return { width: n.data.sizeMode === "manual" ? Math.max(260, n.width ?? natural) : Math.min(620, natural), height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, 48 + Math.max(1, fields.length) * 32 + 4), labelLines: [n.data.label], descriptionLines: [], group, event, gateway };
+  }
+  if (n.data.displayMode === "icon" && !group && !event && !gateway) {
+    const width = n.data.sizeMode === "manual" ? Math.max(100, n.width ?? 120) : 120;
+    const labelLines = wrapText(n.data.label, width - 8);
+    return { width, height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, 66 + labelLines.length * 19), labelLines, descriptionLines: [], group, event, gateway };
   }
   if (group)
     return {
@@ -183,8 +189,8 @@ export function containingGroup(
       const at = absolutePosition(g, nodes),
         size = nodeLayout(g);
       return (
-        p.x >= at.x + 8 &&
-        p.y >= at.y + 36 &&
+        p.x >= at.x + (g.data.kind === "lane" ? 48 : 8) &&
+        p.y >= at.y + (g.data.kind === "lane" ? 8 : 36) &&
         p.x + s.width <= at.x + size.width - 8 &&
         p.y + s.height <= at.y + size.height - 8
       );
@@ -237,6 +243,8 @@ export function portAnchor(
   return { x, y, position: sidePosition[port.side] };
 }
 export function edgeGeometry(edge: DiagramEdge, nodes: DiagramNode[]) {
+  const route = routedGeometry(edge, nodes);
+  if (route) return route;
   const source = nodes.find((n) => n.id === edge.source),
     target = nodes.find((n) => n.id === edge.target);
   if (!source || !target) return null;
@@ -261,6 +269,7 @@ export function diagramBounds(nodes: DiagramNode[], edges: DiagramEdge[] = []) {
     return [p, { x: p.x + s.width, y: p.y + s.height }];
   });
   edges.forEach((e) => {
+    if (routedGeometry(e, nodes)) points.push(...e.data!.route!.points);
     const g = edgeGeometry(e, nodes);
     if (g) {
       const half = textWidth(String(e.label ?? ""), 12, 400) / 2 + 10;
