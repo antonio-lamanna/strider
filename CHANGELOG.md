@@ -1,3 +1,13 @@
+# STRIDER 1.3.1
+
+## Supplied HTML mockup
+
+- Apply the supplied warm light and near-black dark workspace palettes, Instrument Sans UI typography, compact header and rounded diagram tabs.
+- Place existing library, inspector, new-diagram and help actions in a narrow workspace rail; retain the original Strider logo.
+- Present the existing select/pan and zoom controls in one floating canvas dock. Style the library, inspector, inputs and all three editors consistently.
+- Preserve the existing canvas type metrics, node dimensions and connection handles. Data models, routing, layout algorithms, history, icon modes, XML/JSON/SQL import and all export services are unchanged.
+- Load workspace fonts from Google Fonts with system fallbacks. Diagram text keeps the existing font metrics.
+
 # STRIDER 1.2.0
 
 ## Product icons and visual refinement

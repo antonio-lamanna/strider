@@ -935,6 +935,7 @@ export default function App() {
       >
         <Toolbar
           name={d.name}
+          workspaceName={workspace.project?.name || "Standalone diagrams"}
           dirty={workspace.dirtyDiagram(d.id)}
           onName={(name) => patchDiagram({ name })}
           onNew={() => setNewDialog(true)}
@@ -972,6 +973,18 @@ export default function App() {
           }}
         />
         <main className="editor-workspace">
+          <nav className="workspace-rail" aria-label="Workspace tools">
+            <button className="rail-new" title="New diagram" aria-label="New diagram" onClick={() => setNewDialog(true)}><Plus size={17} /></button>
+            <button title={leftOpen ? "Collapse library" : "Open library"} aria-label="Toggle component library" aria-pressed={leftOpen} onClick={() => setLeftOpen((v) => !v)}><PanelLeftClose size={17} /></button>
+            <button title={rightOpen ? "Collapse inspector" : "Open inspector"} aria-label="Toggle properties panel" aria-pressed={rightOpen} onClick={() => setRightOpen((v) => !v)}><PanelRightClose size={17} /></button>
+            <span className="rail-spacer" />
+            <button title="Keyboard shortcuts" aria-label="Workspace shortcuts" onClick={() => setHelp(true)}><HelpCircle size={17} /></button>
+          </nav>
+          {!leftOpen && (
+            <button className="collapsed-library" aria-label="Open component library" title="Open library" onClick={() => setLeftOpen(true)}>
+              <PanelLeftClose size={16} /><span>Library</span>
+            </button>
+          )}
           {leftOpen && (
             <Palette key={d.kind}
               iconMode={iconMode}
@@ -1093,16 +1106,6 @@ export default function App() {
             </ReactFlow>
             <div className="canvas-topline">
               <div className="canvas-breadcrumb">
-                {!leftOpen && (
-                  <button
-                    className="icon-button panel-reveal"
-                    aria-label="Open component library"
-                    title="Open library"
-                    onClick={() => setLeftOpen(true)}
-                  >
-                    <PanelLeftClose size={17} />
-                  </button>
-                )}
                 <span className="canvas-tag">
                   <Icon name="workflow" size={13} />
                   {modules.find(m => m.kind === d.kind)?.name.toUpperCase()}
@@ -1173,6 +1176,7 @@ export default function App() {
               {(['horizontal','vertical'] as const).map(o=><button key={o} disabled={arranging} aria-pressed={(d.workflowLayout?.orientation ?? 'horizontal')===o} className={(d.workflowLayout?.orientation ?? 'horizontal')===o?'active':''} onClick={()=>void orient(o)}><span aria-hidden="true">{o==='horizontal'?'→':'↓'}</span>{o==='horizontal'?'Horizontal':'Vertical'}</button>)}
             </div>}
             <div className="canvas-bottom">
+              <div className="canvas-dock">
               <div className="tool-switch floating-bar">
                 <button
                   className={tool === "select" ? "active" : ""}
@@ -1259,6 +1263,7 @@ export default function App() {
                 >
                   <Magnet size={17} />
                 </button>
+              </div>
               </div>
               <button
                 className="floating-help"

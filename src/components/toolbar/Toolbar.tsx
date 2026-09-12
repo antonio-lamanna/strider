@@ -22,6 +22,7 @@ interface Props {
   onTransparent: (v: boolean) => void;
   onExcel?: () => void;
   name: string;
+  workspaceName: string;
   dirty: boolean;
   onName: (v: string) => void;
   onNew: () => void;
@@ -63,6 +64,8 @@ export function Toolbar(p: Props) {
       </div>
       <span className="toolbar-divider name-divider" />
       <div className="diagram-title">
+        <span className="workspace-crumb" title={p.workspaceName}><FolderOpen size={14} /><span>{p.workspaceName}</span></span>
+        <span className="title-slash" aria-hidden="true">/</span>
         <input
           value={p.name}
           aria-label="Diagram name"
@@ -113,7 +116,7 @@ export function Toolbar(p: Props) {
           <Save size={16} />
           <span>Save XML</span>
         </button>
-        {p.onArrange && <button className="text-button" disabled={!p.hasNodes || p.arranging} onClick={p.onArrange}><Icon name="network" size={16}/>{p.arranging ? "Arranging…" : "Auto arrange"}</button>}
+        {p.onArrange && <button className="text-button" title="Auto arrange tables" aria-label="Auto arrange" disabled={!p.hasNodes || p.arranging} onClick={p.onArrange}><Icon name="network" size={16}/><span>{p.arranging ? "Arranging…" : "Auto arrange"}</span></button>}
         <div className="export-control" ref={menu}>
           <button
             className="primary-button"

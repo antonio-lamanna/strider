@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import "./styles.css";
+import "./mockup-theme.css";
 import App from "./App";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
