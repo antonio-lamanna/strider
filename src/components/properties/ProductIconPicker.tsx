@@ -1,0 +1,8 @@
+import { useEffect, useState } from 'react';
+import type { CatalogIcon } from '../../config/simpleIconCatalog';
+export function ProductIconPicker({name,onSelect,onReset}: {name?:string;onSelect:(uri:string,name:string)=>void;onReset:()=>void}) {
+ const [open,setOpen]=useState(false),[query,setQuery]=useState(''),[catalog,setCatalog]=useState<CatalogIcon[]>([]),[error,setError]=useState('');
+ useEffect(()=>{if(!open||catalog.length)return;let active=true;import('../../config/simpleIconCatalog').then(m=>{if(active)setCatalog(m.simpleIconCatalog);}).catch(()=>{if(active)setError('Unable to load icons. Close and reopen the picker to retry.');});return()=>{active=false;};},[open,catalog.length]);
+ const found=catalog.filter(i=>(i.name+' '+i.slug).toLowerCase().includes(query.toLowerCase()));
+ return <div className="product-icon-picker"><button className="secondary-button full-width" onClick={()=>setOpen(!open)} aria-expanded={open}>{name ?? 'Choose from Simple Icons'}</button>{name&&<button className="subtle-button" onClick={onReset}>Use system default</button>}{open&&<div className="icon-browser"><input aria-label="Search Simple Icons" placeholder="Search brand or product…" value={query} onChange={e=>setQuery(e.target.value)}/><p className="field-hint">{error||(!catalog.length?'Loading icons…':`${found.length} icons · ${Math.min(found.length,48)} shown`)}</p><div className="icon-browser-grid">{found.slice(0,48).map(i=><button key={i.slug} title={i.name} aria-label={'Use '+i.name+' icon'} onClick={()=>{onSelect(i.uri,i.name);setOpen(false);}}><img src={i.uri} alt=""/><span>{i.name}</span></button>)}</div></div>}</div>;
+}

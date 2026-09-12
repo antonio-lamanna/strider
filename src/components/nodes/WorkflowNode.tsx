@@ -1,3 +1,4 @@
+import { typeLabel } from "../../config/nodeTypes";
 import { TableNode } from "./TableNode";
 import { memo, useEffect } from "react";
 import type { CSSProperties } from "react";
@@ -82,34 +83,10 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
     <div className="standalone-icon"><NodeIcon data={data} size={Math.max(20, Math.min(layout.width, layout.height) - 16)}/></div>
     <div className="symbol-label">{layout.labelLines.map((line, i) => <div key={i}>{line}</div>)}</div>{handles}
   </div>;
-  if (layout.event || layout.gateway)
-    return (
-      <div
-        className={`symbol-node ${selected ? "is-selected" : ""}`}
-        style={style}
-        onDoubleClick={() => actions.editNode(id)}
-      >
-        <div
-          className={
-            layout.gateway ? "gateway-core" : `event-core ${data.kind}`
-          }
-        >
-          {layout.gateway ? (
-            <span className="gateway-symbol">
-              {data.subtype === "and" ? "+" : data.subtype === "or" ? "○" : "×"}
-            </span>
-          ) : (
-            <Icon name={data.icon} size={17} />
-          )}
-          {handles}
-        </div>
-        <div className="symbol-label">
-          {layout.labelLines.map((line, i) => (
-            <div key={i}>{line || "\u00a0"}</div>
-          ))}
-        </div>
-      </div>
-    );
+  if (layout.event || layout.gateway) return <div className={`flow-card ${layout.event ? 'flow-event' : 'flow-gateway'} ${selected ? 'is-selected' : ''}`} style={style} onDoubleClick={()=>actions.editNode(id)}>
+    <span className="node-icon">{layout.gateway ? <span className="gateway-symbol">{data.subtype==='and'?'+':data.subtype==='or'?'○':'×'}</span> : <Icon name={data.icon} size={14}/>}</span>
+    <div className="node-text"><div className="node-label">{layout.labelLines.map((line,i)=><div key={i}>{line}</div>)}</div>{layout.gateway&&<div className="node-kind-label">{typeLabel(data.kind, data.subtype)}</div>}</div>{handles}
+  </div>;
   return (
     <div
       className={`workflow-node ${selected ? "is-selected" : ""} ${data.kind === "ai-agent" ? "agent-node" : ""}`}
@@ -135,6 +112,7 @@ const NormalWorkflowNode = memo(function NormalWorkflowNode(
                 <div key={i}>{line || "\u00a0"}</div>
               ))}
             </div>
+            {!layout.descriptionLines.length && <div className="node-kind-label">{typeLabel(data.kind, data.subtype)}</div>}
             {!!layout.descriptionLines.length && (
               <div className="node-description">
                 {layout.descriptionLines.map((line, i) => (

@@ -71,6 +71,8 @@ export interface DataField {
 export interface WorkflowNodeData extends Record<string, unknown> {
   fields?: DataField[];
   customIcon?: string;
+  productIcon?: string;
+  productIconName?: string;
   iconMode?: IconMode;
   displayMode?: "card" | "icon";
   kind: NodeKind;
@@ -94,6 +96,7 @@ export interface WorkflowEdgeData extends Record<string, unknown> {
 export type DiagramNode = Node<WorkflowNodeData, "workflow" | "container">;
 export type DiagramEdge = Edge<WorkflowEdgeData, "orthogonal">;
 export interface Diagram {
+  workflowLayout?: import("./layoutState").WorkflowLayout;
   id: string;
   kind: DiagramKind;
   version: "1.0";
@@ -109,6 +112,8 @@ export interface Diagram {
 export type NodeTemplate = {
   fields?: DataField[];
   customIcon?: string;
+  productIcon?: string;
+  productIconName?: string;
   iconMode?: IconMode;
   displayMode?: "card" | "icon";
   kind: NodeKind;

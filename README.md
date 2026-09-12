@@ -107,3 +107,10 @@ Field types now use a native select with **Standard** and **Dataverse** optgroup
 Diagram tabs explicitly reset browser button styles and use the shared light/dark surface, borders, text and accent tokens.
 
 Additional properties are optional XML-preserved metadata for integrations and documentation. They do not execute business logic. Recognized properties such as AI agent model/memory/tools and data-model relationship cardinality also contribute to their visual labels.
+
+
+### Workflow orientation and artwork (1.3)
+
+Use Horizontal / Vertical under the canvas breadcrumb. Each orientation retains its own positions while the diagram topology is unchanged. Adding or removing nodes or connections triggers a fresh layout for the next orientation. Node content, IDs, connection semantics, group membership and manual component sizes are preserved. Undo restores the previous document; both layout views are stored in the optional `workflow-layout` XML element. Older XML files remain horizontal by default.
+
+Product artwork now uses Simple Icons exclusively: current package marks plus the bundled archived 11.15 marks. In the inspector choose Product, then Choose from Simple Icons to search the full catalog. The chosen artwork is embedded in XML and SVG exports and remains independent of the palette preference and uploaded custom images. Products missing from Simple Icons retain a standard symbol with an explicit inspector notice; no substitute brand is assigned automatically. The complete icon catalog downloads only when the picker opens.

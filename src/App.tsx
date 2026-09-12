@@ -293,6 +293,16 @@ export default function App() {
   }
   const [arranging, setArranging] = useState(false);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  async function orient(orientation: 'horizontal' | 'vertical') {
+    const before=ref.current, original=fingerprint(before); setArranging(true);
+    try {
+      const { orientWorkflow }=await import('./services/workflowLayout');
+      const next=await orientWorkflow(before,orientation);
+      if(fingerprint(ref.current)!==original) { notify('Diagram changed. Select the orientation again.'); return; }
+      commit(()=>next);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>void flow.fitView({padding:0.2,duration:250})));
+    } catch(e) {setError(e instanceof Error?e.message:'Layout failed.');} finally {setArranging(false);}
+  }
   async function arrange() {
     const before = ref.current; const original = fingerprint(before); setArranging(true);
     try { const { arrangeDataModel } = await import("./services/dataLayout"); const next = await arrangeDataModel(before);
@@ -605,6 +615,10 @@ export default function App() {
       position.y = Math.round(position.y / grid) * grid;
     }
     let n = createNode(newNodeIconMode(template, iconMode), position);
+    if (ref.current.kind === 'workflow' && ref.current.workflowLayout?.orientation === 'vertical') {
+      const sides = { left:'top', right:'bottom', top:'left', bottom:'right' } as const;
+      n.data.ports = n.data.ports.map(p => ({ ...p, side:sides[p.side] }));
+    }
     if (template.kind === "table") {
       const id = { ...createField("id"), dataType: "UUID", primaryKey: true, nullable: false };
       n = withFields(n, [id]);
@@ -1155,6 +1169,9 @@ export default function App() {
                 </div>
               </div>
             )}
+            {d.kind === 'workflow' && <div className="orientation-switch floating-bar" role="group" aria-label="Workflow orientation">
+              {(['horizontal','vertical'] as const).map(o=><button key={o} disabled={arranging} aria-pressed={(d.workflowLayout?.orientation ?? 'horizontal')===o} className={(d.workflowLayout?.orientation ?? 'horizontal')===o?'active':''} onClick={()=>void orient(o)}><span aria-hidden="true">{o==='horizontal'?'→':'↓'}</span>{o==='horizontal'?'Horizontal':'Vertical'}</button>)}
+            </div>}
             <div className="canvas-bottom">
               <div className="tool-switch floating-bar">
                 <button

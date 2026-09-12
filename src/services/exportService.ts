@@ -1,3 +1,4 @@
+import { typeLabel } from "../config/nodeTypes";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Diagram, DiagramNode } from "../model/diagram";
@@ -88,24 +89,18 @@ export function buildSvg(
       const iconSize = Math.max(20, Math.min(s.width, s.height) - 16);
       body = icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, (s.width - iconSize) / 2, (s.height - iconSize) / 2, iconSize, c);
       s.labelLines.forEach((line, i) => body += text(line, s.width / 2, s.height + 15 + i * 14, 11, ink, "middle"));
-    } else if (s.event) {
-      const cx = s.width / 2;
-      body = `<circle cx="${cx}" cy="22" r="21" stroke="${c}" fill="${surface}" stroke-width="${n.data.kind === "end" ? 2.5 : 1.5}"/><circle cx="${cx}" cy="22" r="17" fill="${c}" fill-opacity=".09"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, cx - 8, 14, 16, c)}`;
-      s.labelLines.forEach(
-        (l, i) => (body += text(l, cx, 66 + i * 19, 14, ink, "middle")),
-      );
-    } else if (s.gateway) {
-      const cx = s.width / 2;
-      body = `<path d="M${cx} 0L${cx + 28} 28L${cx} 56L${cx - 28} 28Z" fill="${surface}" stroke="${c}" stroke-width="1.5"/><path d="M${cx} 4L${cx + 24} 28L${cx} 52L${cx - 24} 28Z" fill="${c}" fill-opacity=".08"/>${text(n.data.subtype === "and" ? "+" : n.data.subtype === "or" ? "○" : "×", cx, 35, 25, c, "middle", 400)}`;
-      s.labelLines.forEach(
-        (l, i) => (body += text(l, cx, 83 + i * 19, 14, ink, "middle")),
-      );
+    } else if (s.event || s.gateway) {
+      body = `<rect width="${s.width}" height="${s.height}" rx="${s.event ? 22 : 12}" fill="${surface}" stroke="${border}"/><rect x="12" y="${(s.height-26)/2}" width="26" height="26" rx="8" fill="${c}" fill-opacity=".10"/>`;
+      body += s.gateway ? text(n.data.subtype==='and'?'+':n.data.subtype==='or'?'○':'×',25,s.height/2+6,20,c,'middle') : icon(n.data.icon,18,(s.height-14)/2,14,c);
+      s.labelLines.forEach((line,i)=>body+=text(line,48,s.event?27+i*20:26+i*20,14,ink));
+      if(s.gateway) body+=text(typeLabel(n.data.kind, n.data.subtype),48,s.height-10,11,muted);
     } else {
       const rowHeight = s.height - (n.data.kind === "ai-agent" ? 37 : 0);
-      body = `<defs><clipPath id="${clip}"><rect x="1" y="1" width="${s.width - 2}" height="${s.height - 2}" rx="9"/></clipPath></defs><rect width="${s.width}" height="${s.height}" rx="12" fill="${surface}" stroke="${border}"/><g clip-path="url(#${clip})"><path d="M1 10V${s.height - 10}" stroke="${c}" stroke-width="5"/><rect x="14" y="${Math.max(12, (rowHeight - 32) / 2)}" width="32" height="32" rx="8" fill="${c}" fill-opacity=".10"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, 21, Math.max(12, (rowHeight - 32) / 2) + 7, 18, c)}`;
+      body = `<defs><clipPath id="${clip}"><rect x="1" y="1" width="${s.width - 2}" height="${s.height - 2}" rx="9"/></clipPath></defs><rect width="${s.width}" height="${s.height}" rx="12" fill="${surface}" stroke="${border}"/><g clip-path="url(#${clip})"><rect x="14" y="${Math.max(12, (rowHeight - 32) / 2)}" width="32" height="32" rx="8" fill="${c}" fill-opacity=".10"/>${icon(n.data.customIcon || productIconUri(n.data) || n.data.icon, 21, Math.max(12, (rowHeight - 32) / 2) + 7, 18, c)}`;
       s.labelLines.forEach(
         (l, i) => (body += text(l, 57, 28 + i * 20, 14, ink)),
       );
+      if (!s.descriptionLines.length) body += text(typeLabel(n.data.kind, n.data.subtype), 57, 28 + s.labelLines.length * 20 - 3, 11, muted);
       s.descriptionLines.forEach(
         (l, i) =>
           (body += text(

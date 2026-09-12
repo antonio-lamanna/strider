@@ -70,6 +70,11 @@ export function nodeLayout(n: DiagramNode) {
       gateway,
       group,
     };
+  if (event || gateway) {
+    const width = n.data.sizeMode === 'manual' ? n.width ?? 160 : Math.min(320, Math.max(event ? 140 : 180, textWidth(n.data.label) + 70));
+    const labelLines = wrapText(n.data.label, width - 66);
+    return { width, height: Math.max(event ? 44 : 62, 24 + labelLines.length * 20 + (gateway ? 14 : 0)), labelLines, descriptionLines: [], event, gateway, group };
+  }
   const min = event ? 64 : gateway ? 100 : 150;
   const contentWidth = Math.max(
     ...n.data.label.split("\n").map((s) => textWidth(s, 14, 500)),
@@ -229,7 +234,7 @@ export function portAnchor(
     const index = (n.data.fields ?? []).findIndex(f => `${f.id}:in` === portId || `${f.id}:out` === portId);
     return { x: at.x + (direction === "input" ? 0 : layout.width), y: at.y + 48 + Math.max(0, index) * 32 + 16, position: direction === "input" ? Position.Left : Position.Right };
   }
-  const core = layout.event ? 44 : layout.gateway ? 56 : 0;
+  const core = 0;
   const w = core || layout.width,
     h = core || layout.height,
     offset = core ? (layout.width - core) / 2 : 0;
