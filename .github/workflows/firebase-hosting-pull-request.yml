@@ -31,8 +31,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Strider
+      - name: Build Strider app
         run: npm run build
+
+      - name: Assemble landing page at site root
+        run: cp -R landing/. dist/
 
       - name: Deploy preview channel
         if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW != '' }}
