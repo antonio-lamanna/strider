@@ -2030,3 +2030,45 @@ hr {
 .icon-only-node .standalone-icon { width: 100%; height: 100%; }
 .icon-only-node .symbol-label { position: absolute; top: calc(100% + 4px); left: 0; width: 100%; font-size: 11px; line-height: 14px; pointer-events: none; }
 .product-node-icon, .standalone-icon, .palette-icon { filter: none; box-shadow: none; }
+
+/* Shared visual language from the supplied Strider mockups. */
+:root { --canvas: #f5f5f5; --soft: #f4f4f3; --border: #e6e6e5; --ink: #222529; --muted: #7c828c; --focus: #f2532c; --focus-soft: #fff0eb; --primary: #f2532c; --palette-width: 244px; --panel-width: 282px; }
+:root[data-theme="dark"] { --canvas:#141619; --shell:#1a1c20; --surface:#22252a; --soft:#292c31; --border:#33373e; --border-strong:#444951; --ink:#f1f2f4; --muted:#adb3be; --focus:#ff6a3d; --focus-soft:#422b25; --primary:#ff6a3d; }
+.panel-heading { height:48px; min-height:48px; font-size:14px; }
+.palette-item { padding-top:8px; padding-bottom:8px; font-size:13px; }
+.palette-icon { background:color-mix(in srgb,var(--accent) 12%,var(--surface)); }
+.palette-search { margin-top:5px; border:1px solid transparent; }
+.library-icon-mode { padding:8px 12px 4px; }
+.library-icon-mode > small { display:none; }
+.library-icon-mode .sizing-switch { padding:3px; border:1px solid var(--border); background:var(--soft); }
+.library-icon-mode .sizing-switch button { min-height:28px; font-size:12px; }
+.diagram-tabs { background:var(--soft); padding:5px 14px; gap:6px; }
+.diagram-tab { min-height:32px; border:1px solid transparent; border-radius:10px; }
+.diagram-tab.active { background:var(--surface); border:1px solid var(--border); }
+.diagram-tab.active::after { display:none; }
+.diagram-tab > button:first-child { padding:6px 7px 6px 10px; }
+.workflow-node:before { display:none; }
+.workflow-node,.table-node,.flow-card { border:1px solid var(--border); box-shadow:0 2px 3px #00000005; }
+.node-main { padding:13px; gap:12px; }
+.node-text { align-self:center; }
+.node-label { font-weight:600; }
+.node-kind-label { color:var(--muted); font-size:11px; line-height:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.node-icon { border-radius:9px; }
+.flow-card { position:relative; display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--surface); border-radius:12px; color:var(--ink); }
+.flow-card .node-icon { width:26px; height:26px; }
+.flow-event { border-radius:24px; }
+.flow-card.is-selected,.workflow-node.is-selected,.table-node.is-selected { border-color:var(--focus); box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 12%,transparent); }
+.flow-card:hover .port,.flow-card.is-selected .port { opacity:1; }
+.agent-capabilities { gap:6px; padding:8px 13px; }
+.agent-capabilities > span { background:var(--soft); border:0; padding:3px 8px; border-radius:5px; }
+.orientation-switch { position:absolute; left:24px; top:70px; z-index:6; padding:4px; pointer-events:auto; }
+.orientation-switch button { width:auto; padding:0 10px; gap:7px; font-size:12px; }
+.orientation-switch button.active { background:var(--focus-soft); color:var(--focus); }
+.icon-browser { padding:10px 0; }
+.icon-browser > input { width:100%; border:1px solid var(--border); border-radius:8px; padding:9px; color:var(--ink); background:var(--soft); }
+.icon-browser-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; max-height:310px; overflow:auto; }
+.icon-browser-grid button { display:flex; flex-direction:column; align-items:center; gap:7px; padding:10px 4px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); min-width:0; }
+.icon-browser-grid button:hover { border-color:var(--focus); background:var(--focus-soft); }
+.icon-browser-grid img { width:24px; height:24px; background:#fff; border-radius:3px; padding:1px; }
+.icon-browser-grid span { width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
+.product-icon-picker { margin:10px 0 16px; }

@@ -1,3 +1,5 @@
+import { validProductArtwork } from "../model/productArtwork";
+import { validateWorkflowLayout } from "../model/layoutState";
 import { createDiagram, defaultPorts, isContainer } from "../model/diagram";
 import type {
   Diagram,
@@ -122,6 +124,8 @@ export function parseDiagram(xml: string): Diagram {
       ...(settings.hasAttribute("gridColor") ? { gridColor: required(settings, "gridColor") } : {}),
     };
   if (d.settings.gridColor && !/^#[\da-f]{6}$/i.test(d.settings.gridColor)) throw new Error("Invalid grid color.");
+  const savedLayout = child(root, "workflow-layout");
+  if (savedLayout) { try { d.workflowLayout = validateWorkflowLayout(JSON.parse(savedLayout.textContent ?? "")); } catch { throw new Error("Invalid saved workflow layout."); } }
   const nodeList = child(root, "nodes"),
     edgeList = child(root, "edges");
   if (!nodeList || !edgeList)
@@ -212,6 +216,12 @@ export function parseDiagram(xml: string): Diagram {
     const displayMode = el.getAttribute("displayMode");
     if (displayMode && !["card", "icon"].includes(displayMode)) throw new Error("Invalid display mode.");
     if (displayMode) n.data.displayMode = displayMode as "card" | "icon";
+    const productIcon = child(el, "product-icon");
+    if (productIcon) {
+      if (!validProductArtwork(productIcon.textContent ?? '')) throw new Error('Invalid product icon.');
+      n.data.productIcon = productIcon.textContent!;
+      n.data.productIconName = productIcon.getAttribute('name') ?? 'Simple Icons';
+    }
     const customIcon = child(el, "custom-icon")?.textContent;
     if (customIcon) {
       if (!validCustomIcon(customIcon)) throw new Error(`Invalid custom image on ${id}. Use PNG, JPEG or WebP.`);

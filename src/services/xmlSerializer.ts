@@ -29,6 +29,7 @@ export function serializeDiagram(input: Diagram): string {
   append(root, "description", {}, d.description);
   append(root, "viewport", d.viewport);
   append(root, "settings", d.settings);
+  if (d.workflowLayout) append(root, "workflow-layout", {}, JSON.stringify(d.workflowLayout));
   const writeProperties = (
     parent: Element,
     props: Record<string, JsonValue>,
@@ -64,6 +65,7 @@ export function serializeDiagram(input: Diagram): string {
       zIndex: n.zIndex,
     });
     append(e, "description", {}, n.data.description);
+    if (n.data.productIcon) append(e, "product-icon", {name:n.data.productIconName}, n.data.productIcon);
     if (n.data.customIcon) append(e, "custom-icon", {}, n.data.customIcon);
     if (n.data.fields) {
       const fields = append(e, "fields");
