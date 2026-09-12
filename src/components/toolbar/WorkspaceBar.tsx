@@ -9,7 +9,7 @@ interface Props {
   onNew: () => void; onProject: () => void; onSaveProject: () => void;
 }
 export function WorkspaceBar(p: Props) {
-  return <div className="workspace-bar">
+  return <div className={`workspace-bar ${p.project ? "is-project" : ""}`}>
     <div className="project-strip">
       <button className="text-button project-title" onClick={p.onProject} title={p.project ? 'Project settings' : 'Create a project from these diagrams'}>
         <FolderOpen size={16}/><strong>{p.project?.name || 'Standalone diagrams'}</strong><span>{p.project ? `${p.docs.length} diagrams` : 'Create project'}</span>
