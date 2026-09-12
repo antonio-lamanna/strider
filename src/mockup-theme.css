@@ -256,6 +256,7 @@
 .empty-hint { font-size: 11px; }
 
 /* Only paint changes on nodes: existing dimensions, type metrics and handles are retained. */
+.canvas-area .react-flow { font-family: Arial, sans-serif; }
 .workflow-node, .flow-card, .table-node { background: var(--node-surface); border-color: var(--node-border); box-shadow: var(--shadow); }
 .workflow-node, .table-node, .flow-gateway { border-radius: 14px; }
 .node-inner { border-radius: 13px; }
