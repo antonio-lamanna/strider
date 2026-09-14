@@ -35,8 +35,17 @@ jobs:
       - name: Build Strider app
         run: npm run build
 
+      - name: Run regression suite
+        run: npm test
+
       - name: Assemble landing page at site root
         run: cp -R landing/. dist/
+
+      - name: Install browser test runner
+        run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Deploy to Firebase Hosting
         if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW != '' }}
@@ -46,6 +55,20 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW }}
           channelId: live
           projectId: strider-workflow
+
+      - name: Verify live site after deployment
+        if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW != '' }}
+        env:
+          TARGET_URL: https://strider-workflow.web.app
+        run: node scripts/browser-regression.mjs
+
+      - name: Save live regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-browser-regression
+          path: test-results/
+          retention-days: 7
 
       - name: Firebase credentials not configured
         if: ${{ env.FIREBASE_SERVICE_ACCOUNT_STRIDER_WORKFLOW == '' }}

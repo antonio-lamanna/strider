@@ -1,3 +1,14 @@
+# STRIDER 1.4.0
+
+## Diagram graphics and connections
+
+- Complete the product icon catalog with bundled vendor SVGs, including Dataverse and Google Cloud services. Preserve existing icon preferences and custom artwork.
+- Add source, target and dual arrowheads; connect any side of a component, table field or container.
+- Add independent component border colors and diagram font sizes from 14 to 28 px. Save these settings in XML and reproduce them in SVG and PNG exports.
+- Split Inspector into Properties and Graphics, clarify Standard icons/Product icons in Library, and render gateways as compact diamonds.
+- Retain legacy port IDs, table field identities, SQL relationships, history and reversible workflow orientations.
+- Add regression coverage for all 16 side combinations, containers, typography, arrows and product artwork, plus browser checks before and after deployment.
+
 # STRIDER 1.3.1
 
 ## Supplied HTML mockup

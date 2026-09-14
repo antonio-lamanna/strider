@@ -76,7 +76,7 @@ export function nodeLayout(n: DiagramNode, fontSize = 14) {
   const descriptionLines = n.data.description && !event
     ? wrapText(n.data.description, Math.max(20, width - 72), 12 * scale, 400) : [];
   const naturalHeight = event ? Math.max(44, 24 + labelLines.length * 20 * scale)
-    : Math.max(62, 26 + labelLines.length * 20 * scale +
+    : Math.max(62, 28 + labelLines.length * 20 * scale +
         (descriptionLines.length ? 5 + descriptionLines.length * 17 * scale : 14 * scale)) +
       (n.data.kind === "ai-agent" ? 37 * scale : 0);
   return { width, height: n.data.sizeMode === "manual" ? n.height ?? naturalHeight : naturalHeight,
