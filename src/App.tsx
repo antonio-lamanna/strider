@@ -1,3 +1,4 @@
+import { connectionPorts } from "./model/connectionPorts";
 import { reconcileRelationship } from "./model/relationships";
 import release from "../public/version.json";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -6,6 +7,7 @@ import {
   Background,
   BackgroundVariant,
   ConnectionLineType,
+  ConnectionMode,
   SelectionMode,
   applyNodeChanges,
   applyEdgeChanges,
@@ -24,7 +26,6 @@ import type {
 import {
   createDiagram,
   createNode,
-  defaultPorts,
   isContainer,
 } from "./model/diagram";
 import { newId } from "./utils/id";
@@ -379,7 +380,7 @@ export default function App() {
   );
   function patchFields(id: string, fields: DataField[]) {
     commit(d => {
-      const ports = new Set(fields.flatMap(f => [`${f.id}:in`, `${f.id}:out`]));
+      const ports = new Set(fields.flatMap(f => [`${f.id}:in`, `${f.id}:out`, `${f.id}:top`, `${f.id}:bottom`]));
       return { ...d, nodes: d.nodes.map(n => n.id === id ? withFields(n, fields) : n), edges: d.edges.filter(e => !(e.source === id && !ports.has(e.sourceHandle ?? '')) && !(e.target === id && !ports.has(e.targetHandle ?? ''))) };
     }, `fields:${id}`);
   }
@@ -419,15 +420,7 @@ export default function App() {
   function changeType(id: string, t: NodeTemplate) {
     commit((d) => {
       const old = d.nodes.find((n) => n.id === id)!;
-      const ports = isContainer(old)
-        ? []
-        : defaultPorts().filter((p) =>
-            t.kind === "start"
-              ? p.direction === "output"
-              : t.kind === "end"
-                ? p.direction === "input"
-                : true,
-          );
+      const ports = connectionPorts(old);
       return {
         ...d,
         nodes: d.nodes.map((n) =>
@@ -458,13 +451,12 @@ export default function App() {
             (e.source !== id ||
               ports.some(
                 (p) =>
-                  p.id === (e.sourceHandle ?? "out") &&
-                  p.direction === "output",
+                  p.id === (e.sourceHandle ?? "out"),
               )) &&
             (e.target !== id ||
               ports.some(
                 (p) =>
-                  p.id === (e.targetHandle ?? "in") && p.direction === "input",
+                  p.id === (e.targetHandle ?? "in"),
               )),
         ),
       };
@@ -513,11 +505,11 @@ export default function App() {
         const minX = Math.min(...kids.map((k) => k.position.x)) - 28,
           minY = Math.min(...kids.map((k) => k.position.y)) - 56;
         const width =
-            Math.max(...kids.map((k) => k.position.x + nodeLayout(k).width)) -
+            Math.max(...kids.map((k) => k.position.x + nodeLayout(k, d.settings.fontSize).width)) -
             minX +
             28,
           height =
-            Math.max(...kids.map((k) => k.position.y + nodeLayout(k).height)) -
+            Math.max(...kids.map((k) => k.position.y + nodeLayout(k, d.settings.fontSize).height)) -
             minY +
             28;
         return {
@@ -699,7 +691,7 @@ export default function App() {
       if (!roots.length) return d;
       const coords = roots.map((n) => ({
           ...absolutePosition(n, d.nodes),
-          ...nodeLayout(n),
+          ...nodeLayout(n, d.settings.fontSize),
         })),
         x = Math.min(...coords.map((n) => n.x)) - 28,
         y = Math.min(...coords.map((n) => n.y)) - 56;
@@ -856,7 +848,7 @@ export default function App() {
         for (const id of ids) {
           const n = nodes.find((n) => n.id === id);
           if (!n || (n.parentId && ids.has(n.parentId))) continue;
-          const target = containingGroup(n, nodes);
+          const target = containingGroup(n, nodes, d.settings.fontSize);
           if (n.parentId !== target?.id)
             nodes = nodes.map((item) =>
               item.id === id ? reparentNode(item, target?.id, nodes) : item,
@@ -870,6 +862,7 @@ export default function App() {
   );
   const editorActions = useMemo(
     () => ({
+      fontSize: d.settings.fontSize ?? 14,
       editNode,
       beginResize: (id: string) => {
         begin();
@@ -877,7 +870,7 @@ export default function App() {
           ...d,
           nodes: d.nodes.map((n) => {
             if (n.id !== id) return n;
-            const s = nodeLayout(n);
+            const s = nodeLayout(n, d.settings.fontSize);
             return {
               ...n,
               width: s.width,
@@ -889,7 +882,7 @@ export default function App() {
       },
       endResize: () => requestAnimationFrame(end),
     }),
-    [editNode, begin, replace, end],
+    [editNode, begin, replace, end, d.settings.fontSize],
   );
   function contextMenu(
     event: React.MouseEvent | MouseEvent,
@@ -1079,6 +1072,7 @@ export default function App() {
               maxZoom={3}
               snapToGrid={d.settings.snap}
               snapGrid={[d.settings.gridSize, d.settings.gridSize]}
+              connectionMode={ConnectionMode.Loose}
               connectionLineType={ConnectionLineType.SmoothStep}
               connectionLineStyle={{ stroke: "var(--focus)", strokeWidth: 1.5 }}
               selectionMode={SelectionMode.Partial}

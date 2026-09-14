@@ -2,7 +2,7 @@ name: Verify Strider
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, 'codex/strider-graphics-*']
 permissions:
   contents: read
 jobs:

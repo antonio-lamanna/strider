@@ -1,3 +1,4 @@
+import { bundledProductIcons } from "./bundledProductIcons";
 import { brandArtwork } from "./brandArtwork";
 import { flatProductIcons } from "./flatProductIcons";
 import type { SimpleIcon } from "simple-icons";
@@ -49,8 +50,8 @@ export const productIcons: ProductIcon[] = productPresets.map(p => {
   if (/appian|uipath|automation-anywhere|blue-prism|power-automate/.test(p.id)) aliases.push("automation", "rpa", "low code");
   if (p.id === "power-bi") aliases.push("powerbi", "business intelligence", "analytics");
   if (p.id === "power-apps") aliases.push("powerapps", "low code");
-  return { ...p, category: category(p), aliases, source: flat?.source ?? si?.source ?? "Standard fallback",
-    svg: flat?.svg ?? (si ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${si.hex}"><path d="${si.path}"/></svg>` : undefined),
+  return { ...p, category: category(p), aliases, source: flat?.source ?? si?.source ?? (bundledProductIcons[p.id] ? "Bundled vendor artwork; see icon-licenses.txt" : "Standard symbol"),
+    svg: flat?.svg ?? (si ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${si.hex}"><path d="${si.path}"/></svg>` : bundledProductIcons[p.id]),
     guidelines: si?.guidelines, license: si?.license };
 });
 const byId = new Map(productIcons.map(p => [p.id, p]));
@@ -58,9 +59,14 @@ export const findProduct = (id?: string) => id ? byId.get(id) : undefined;
 export const productSearchTerms = (id?: string) => findProduct(id)?.aliases.join(" ") ?? "";
 export const supportsProductIcon = (data: Pick<NodeTemplate, "kind">) => !["table", "start", "end", "event", "timer", "gateway", "lane", "group", "system-boundary", "team-boundary"].includes(data.kind);
 const uris = new Map(productIcons.filter(p => p.svg).map(p => [p.id, `data:image/svg+xml;charset=utf-8,${encodeURIComponent(p.svg!)}`]));
-const darkArtwork = new Set(["anthropic", "github", "confluence"].map(id => uris.get(id)));
+const darkArtwork = new Set(["anthropic", "github", "confluence", "azure-openai", "blue-prism", "workday"].map(id => uris.get(id)));
 export const productIconNeedsBackdrop = (uri?: string) => !!uri && darkArtwork.has(uri);
-export const productIconUri = (data: Pick<NodeTemplate, "iconMode" | "system" | "productIcon">) => data.iconMode === "product" ? data.productIcon || (data.system ? uris.get(data.system) : undefined) : undefined;
+export const productIconUri = (data: Pick<NodeTemplate, "iconMode" | "system" | "productIcon"> & { label?: string }) => {
+  if (data.iconMode !== "product") return undefined;
+  const name = data.label?.trim().toLowerCase();
+  const id = data.system ?? productIcons.find(p => p.name.toLowerCase() === name || p.id === name)?.id;
+  return data.productIcon || (id ? uris.get(id) : undefined);
+};
 export function newNodeIconMode(template: NodeTemplate, preference: IconMode): NodeTemplate {
   return supportsProductIcon(template) ? { ...template, iconMode: template.iconMode ?? preference } : template;
 }

@@ -48,6 +48,7 @@ export type EdgeSemantic =
   | "resource"
   | "event"
   | "exception";
+export type ArrowDirection = "forward" | "reverse" | "both";
 export type LineStyle = "auto" | "solid" | "dashed" | "dotted";
 export type Side = "left" | "right" | "top" | "bottom";
 export interface Port {
@@ -82,11 +83,13 @@ export interface WorkflowNodeData extends Record<string, unknown> {
   system?: string;
   icon: string;
   color: string;
+  borderColor?: string;
   sizeMode: "auto" | "manual";
   properties: Record<string, JsonValue>;
   ports: Port[];
 }
 export interface WorkflowEdgeData extends Record<string, unknown> {
+  arrowDirection?: ArrowDirection;
   color?: string;
   route?: { points: { x: number; y: number }[]; signature: string };
   semantic: EdgeSemantic;
@@ -107,7 +110,7 @@ export interface Diagram {
   nodes: DiagramNode[];
   edges: DiagramEdge[];
   viewport: Viewport;
-  settings: { grid: boolean; snap: boolean; gridSize: number; gridColor?: string };
+  settings: { grid: boolean; snap: boolean; gridSize: number; gridColor?: string; fontSize?: number };
 }
 export type NodeTemplate = {
   fields?: DataField[];
@@ -175,15 +178,7 @@ export function createNode(
           ? { model: "GPT-5", memory: "Session", tools: "Enabled" }
           : {},
       ...(template.kind === "table" ? { fields: [] } : {}),
-      ports: template.kind === "table" ? [] : group
-        ? []
-        : defaultPorts().filter((p) =>
-            template.kind === "start"
-              ? p.direction === "output"
-              : template.kind === "end"
-                ? p.direction === "input"
-                : true,
-          ),
+      ports: template.kind === "table" ? [] : defaultPorts(),
     },
   };
 }

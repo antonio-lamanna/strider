@@ -252,3 +252,57 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+ADDITIONAL BUNDLED PRODUCT ARTWORK — 2026-09-14
+Google Cloud icons: https://cloud.google.com/icons (legacy console icons).
+Microsoft assets: https://learn.microsoft.com/en-us/azure/architecture/icons/ .
+Product artwork identifies the named vendors and products; trademark rights remain with their owners.
+The URLs below identify the source copies. Missing individual license metadata is not a grant of trademark rights.
+compute-engine
+Source copy: https://github.com/AwesomeLogos/google-cloud-icons/blob/HEAD/docs/images/compute_engine.svg
+
+cloud-run
+Source copy: https://github.com/AwesomeLogos/google-cloud-icons/blob/HEAD/docs/images/cloud_run.svg
+
+cloud-sql
+Source copy: https://github.com/AwesomeLogos/google-cloud-icons/blob/HEAD/docs/images/cloud_sql.svg
+
+google-kubernetes-engine
+Source copy: https://github.com/AwesomeLogos/google-cloud-icons/blob/HEAD/docs/images/google_kubernetes_engine.svg
+
+vertex-ai
+Source copy: https://github.com/AwesomeLogos/google-cloud-icons/blob/HEAD/docs/images/vertexai.svg
+
+azure-blob-storage
+Source copy: https://github.com/benc-uk/icon-collection/blob/HEAD/azure-icons/Blob-Block.svg
+
+azure-data-lake-storage
+Source copy: https://github.com/benc-uk/icon-collection/blob/HEAD/azure-icons/Data-Lake-Storage-Gen1.svg
+
+microsoft-entra-id
+Source copy: https://github.com/nextauthjs/next-auth/blob/a1a16a5a7780488c7449feece410033f445d0b31/docs/public/img/providers/microsoft-entra-id.svg
+
+servicenow
+Source copy: https://github.com/NangoHQ/nango/blob/HEAD/packages/webapp/public/images/template-logos/servicenow-jwt.svg
+
+workday
+Source copy: https://github.com/NangoHQ/nango/blob/HEAD/packages/webapp/public/images/template-logos/workday-oauth.svg
+
+blue-prism
+Source copy: https://github.com/NoneTheFewer/logoez/blob/3b417bba62aa483bfd97391b934b016f383f5bb1/B/blueprism.com%20logo.svg
+
+automation-anywhere
+Source copy: https://github.com/Luan7805/n8n-nodes-automation-anywhere/blob/458faea9b8dd52b296e5f4b14bf52a6136c24d3f/nodes/AutomationAnywhere/AutomationAnywhere.svg
+
+microsoft-copilot
+Source copy: https://github.com/homarr-labs/dashboard-icons/blob/HEAD/svg/microsoft-copilot.svg
+
+azure-openai
+Source copy: https://github.com/palonza/Azure-Design/blob/d0db7b318f369c99ba2362bf2c3a2bc94f58dbec/SVG_Azure_All/Azure%20OpenAI.svg
+
+amazon-bedrock
+Source copy: https://github.com/lobehub/lobe-icons/blob/a94750e3f5f8fc33757b839d85030e742284e43a/packages/static-svg/icons/bedrock-color.svg
+
+mulesoft
+Source copy: https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/mulesoft.svg

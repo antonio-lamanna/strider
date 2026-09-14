@@ -1,10 +1,11 @@
+import { connectionPorts } from "../../model/connectionPorts";
 import { ProductIconPicker } from "./ProductIconPicker";
 import { productPresets, findProduct, supportsProductIcon } from "../../config/productIcons";
 import { NodeIcon } from "../ui/NodeIcon";
 import { FieldEditor } from "./FieldEditor";
 import { readCustomIcon } from "../../services/customIcon";
 import type { DataField } from "../../model/diagram";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type {
   Diagram,
@@ -47,9 +48,12 @@ function Field({
     </label>
   );
 }
-function Section({ title, children }: { title: string; children: ReactNode }) {
+type InspectorTab = "properties" | "graphics";
+const InspectorTabContext = createContext<InspectorTab>("properties");
+function Section({ title, children, tab = "properties" }: { title: string; children: ReactNode; tab?: InspectorTab }) {
+  const activeTab = useContext(InspectorTabContext);
   return (
-    <section className="property-section">
+    <section className="property-section" hidden={tab !== activeTab}>
       <h3>{title}</h3>
       {children}
     </section>
@@ -128,9 +132,10 @@ interface Props {
 }
 export function PropertiesPanel(p: Props) {
   const [iconError, setIconError] = useState("");
+  const [tab, setTab] = useState<InspectorTab>("properties");
   const node = p.nodes.length === 1 ? p.nodes[0] : undefined,
     edge = !p.nodes.length ? p.edge : undefined;
-  const layout = node ? nodeLayout(node) : null;
+  const layout = node ? nodeLayout(node, p.diagram.settings.fontSize) : null;
   const excluded = node
     ? descendants(new Set([node.id]), p.diagram.nodes)
     : new Set<string>();
@@ -138,6 +143,7 @@ export function PropertiesPanel(p: Props) {
     (n) => isContainer(n) && !excluded.has(n.id),
   );
   return (
+    <InspectorTabContext.Provider value={tab}>
     <aside className="properties panel" aria-label="Properties panel">
       <div className="panel-heading">
         <span>Inspector</span>
@@ -149,7 +155,23 @@ export function PropertiesPanel(p: Props) {
           <PanelRightClose size={16} />
         </button>
       </div>
-      <div className="properties-scroll">
+      <div className="inspector-tabs" role="tablist" aria-label="Inspector tabs">
+        {(["properties", "graphics"] as const).map(value => <button key={value} id={`inspector-${value}`} role="tab" aria-selected={tab === value} aria-controls="inspector-content" tabIndex={tab === value ? 0 : -1} className={tab === value ? "active" : ""} onClick={() => setTab(value)} onKeyDown={event => {
+          if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+            event.preventDefault();
+            const next = event.key === "Home" ? "properties" : event.key === "End" ? "graphics" : tab === "properties" ? "graphics" : "properties";
+            setTab(next); document.getElementById(`inspector-${next}`)?.focus();
+          }
+        }}>{value === "properties" ? "Properties" : "Graphics"}</button>)}
+      </div>
+      <div className="properties-scroll" id="inspector-content" role="tabpanel" aria-labelledby={`inspector-${tab}`}>
+        <Section title="Diagram typography" tab="graphics">
+          <Field label="Diagram font size" hint="Applies to all labels in this diagram and its exports.">
+            <select aria-label="Diagram font size" value={p.diagram.settings.fontSize ?? 14} onChange={event => p.onDiagram({ settings: { ...p.diagram.settings, fontSize: Number(event.target.value) } })}>
+              {Array.from(new Set([14, 16, 18, 20, 24, 28, p.diagram.settings.fontSize ?? 14])).sort((a,b) => a-b).map(size => <option key={size} value={size}>{size} px{size === 14 ? " · Default" : ""}</option>)}
+            </select>
+          </Field>
+        </Section>
         {p.nodes.length > 1 ? (
           <>
             <div className="inspector-summary">
@@ -181,7 +203,7 @@ export function PropertiesPanel(p: Props) {
                 Delete selection
               </button>
             </Section>
-            <p className="panel-note">
+            <p className="panel-note" hidden={tab !== "properties"}>
               Move the selection together, or create a container to keep these
               components in one boundary.
             </p>
@@ -206,6 +228,40 @@ export function PropertiesPanel(p: Props) {
               </div>
             </div>
             <Section title="Content">
+              <Field label="System preset">
+                <select
+                  value={node.data.system ?? ""}
+                  onChange={(e) => {
+                    const preset = systemPresets.find(
+                      (s) => s.id === e.target.value,
+                    );
+                    p.onData(
+                      node.id,
+                      preset
+                        ? {
+                            system: preset.id,
+                            icon: preset.icon,
+                            color: preset.accentColor,
+                          }
+                        : { system: undefined },
+                    );
+                  }}
+                >
+                  <option value="">Custom / none</option>
+                  {node.data.system &&
+                    !systemPresets.some((s) => s.id === node.data.system) && (
+                      <option value={node.data.system}>
+                        {node.data.system}
+                      </option>
+                    )}
+                  {systemPresets.map((s) => (
+                    <option value={s.id} key={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
               <Field label="Label">
                 <textarea
                   id="node-label-input"
@@ -252,46 +308,18 @@ export function PropertiesPanel(p: Props) {
                 </select>
               </Field>}
             </Section>
-            {node.data.kind === "table" && <FieldEditor key={node.id} fields={node.data.fields ?? []} onChange={fields => p.onFields(node.id, fields)}/>}
-            <Section title="Appearance">
-              {supportsProductIcon(node.data) && <Field label="Icon mode" hint={node.data.customIcon ? "Your uploaded icon takes priority. Remove it to show the chosen style." : node.data.iconMode === "product" && !node.data.productIcon && !findProduct(node.data.system)?.svg ? "This product is not in Simple Icons. Choose artwork below or keep the standard symbol." : "Applies only to this element."}>
-                <select aria-label="Element icon mode" value={node.data.iconMode ?? "standard"} onChange={e => p.onData(node.id, { iconMode: e.target.value as "standard" | "product" })}><option value="standard">Standard</option><option value="product">Product</option></select>
+            {tab === "properties" && node.data.kind === "table" && <FieldEditor key={node.id} fields={node.data.fields ?? []} onChange={fields => p.onFields(node.id, fields)}/>}
+            <Section title="Appearance" tab="graphics">
+              <Field label="Border color"><div className="color-field">
+                <input type="color" aria-label="Border color" value={node.data.borderColor ?? "#8794a6"} onChange={event => p.onData(node.id, { borderColor: event.target.value })}/>
+                <span>{node.data.borderColor?.toUpperCase() ?? "Automatic"}</span>
+                <button className="subtle-button" onClick={() => p.onData(node.id, { borderColor: undefined })}>Reset</button>
+              </div></Field>
+              {supportsProductIcon(node.data) && <Field label="Icon mode" hint={node.data.customIcon ? "Your uploaded icon takes priority. Remove it to show the chosen style." : node.data.iconMode === "product" && !node.data.productIcon && !findProduct(node.data.system)?.svg ? "Choose a product preset or select an icon below." : "Applies only to this element."}>
+                <select aria-label="Element icon mode" value={node.data.iconMode ?? "standard"} onChange={e => p.onData(node.id, { iconMode: e.target.value as "standard" | "product" })}><option value="standard">Standard icons</option><option value="product">Product icons</option></select>
               </Field>}
               {supportsProductIcon(node.data) && node.data.iconMode === "product" && <ProductIconPicker key={node.id} name={node.data.productIconName} onSelect={(productIcon,productIconName)=>p.onData(node.id,{productIcon,productIconName})} onReset={()=>p.onData(node.id,{productIcon:undefined,productIconName:undefined})}/>}
               {p.diagram.kind === "architecture" && !isContainer(node) && !isEvent(node) && node.data.kind !== "gateway" && <Field label="Display"><select aria-label="Display mode" value={node.data.displayMode ?? "card"} onChange={e => p.onData(node.id, { displayMode: e.target.value as "card" | "icon" })}><option value="card">Card</option><option value="icon">Icon only</option></select></Field>}
-              <Field label="System preset">
-                <select
-                  value={node.data.system ?? ""}
-                  onChange={(e) => {
-                    const preset = systemPresets.find(
-                      (s) => s.id === e.target.value,
-                    );
-                    p.onData(
-                      node.id,
-                      preset
-                        ? {
-                            system: preset.id,
-                            icon: preset.icon,
-                            color: preset.accentColor,
-                          }
-                        : { system: undefined },
-                    );
-                  }}
-                >
-                  <option value="">Custom / none</option>
-                  {node.data.system &&
-                    !systemPresets.some((s) => s.id === node.data.system) && (
-                      <option value={node.data.system}>
-                        {node.data.system}
-                      </option>
-                    )}
-                  {systemPresets.map((s) => (
-                    <option value={s.id} key={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
               <div className="field-pair">
                 <Field label="Icon">
                   <select
@@ -322,7 +350,7 @@ export function PropertiesPanel(p: Props) {
                 </Field>
               </div>
             </Section>
-            {!isEvent(node) && node.data.kind !== "gateway" && node.data.kind !== "table" && <Section title="Custom icon">
+            {!isEvent(node) && node.data.kind !== "gateway" && node.data.kind !== "table" && <Section title="Custom icon" tab="graphics">
               <label className="field"><span>Upload PNG, JPEG or WebP</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={async e => {
                 const file = e.target.files?.[0]; e.target.value = ''; if (!file) return;
                 const id = node.id; setIconError('');
@@ -332,7 +360,7 @@ export function PropertiesPanel(p: Props) {
               {iconError && <p className="field-error">{iconError}</p>}
             </Section>}
             {!isEvent(node) && node.data.kind !== "gateway" && (
-              <Section title="Dimensions">
+              <Section title="Dimensions" tab="graphics">
                 <div className="sizing-switch">
                   <button
                     className={node.data.sizeMode === "auto" ? "active" : ""}
@@ -522,6 +550,15 @@ export function PropertiesPanel(p: Props) {
                   )}
                 </select>
               </Field>
+            </Section>
+            <Section title="Connection appearance" tab="graphics">
+              <Field label="Arrow direction">
+                <select aria-label="Arrow direction" value={edge.data?.arrowDirection ?? "forward"} onChange={event => p.onEdge(edge.id, {}, { arrowDirection: event.target.value as WorkflowEdgeData["arrowDirection"] })}>
+                  <option value="forward">→ Towards target</option>
+                  <option value="reverse">← Towards source</option>
+                  <option value="both">↔ Both ends</option>
+                </select>
+              </Field>
               <Field label="Connection color"><div className="color-field"><input type="color" aria-label="Connection color" value={edge.data?.color ?? "#929eae"} onChange={e => p.onEdge(edge.id, {}, { color: e.target.value })}/><button className="subtle-button" onClick={() => p.onEdge(edge.id, {}, { color: undefined })}>Reset</button></div></Field>
               <Field label="Line style">
                 <select
@@ -548,8 +585,7 @@ export function PropertiesPanel(p: Props) {
               {(["source", "target"] as const).map((side) => {
                 const current = p.diagram.nodes.find(
                     (n) => n.id === edge[side],
-                  ),
-                  direction = side === "source" ? "output" : "input";
+                  );
                 return (
                   <div key={side}>
                     <Field label={side === "source" ? "Source" : "Target"}>
@@ -561,15 +597,13 @@ export function PropertiesPanel(p: Props) {
                           )!;
                           p.onEdge(edge.id, {
                             [side]: target.id,
-                            [`${side}Handle`]: target.data.ports.find(
-                              (p) => p.direction === direction,
-                            )!.id,
+                            [`${side}Handle`]: connectionPorts(target)[0].id,
                           });
                         }}
                       >
                         {p.diagram.nodes
                           .filter((n) =>
-                            n.data.ports.some((p) => p.direction === direction),
+                            connectionPorts(n).length > 0,
                           )
                           .map((n) => (
                             <option key={n.id} value={n.id}>
@@ -579,7 +613,7 @@ export function PropertiesPanel(p: Props) {
                       </select>
                     </Field>
                     <Field
-                      label={side === "source" ? "Output port" : "Input port"}
+                      label={side === "source" ? "Source attachment" : "Target attachment"}
                     >
                       <select
                         value={
@@ -593,11 +627,10 @@ export function PropertiesPanel(p: Props) {
                           })
                         }
                       >
-                        {current?.data.ports
-                          .filter((p) => p.direction === direction)
-                          .map((p) => (
+                        {(current ? connectionPorts(current) : [])
+                                                    .map((p) => (
                             <option key={p.id} value={p.id}>
-                              {p.label ?? p.id} · {p.side}
+                              {p.side[0].toUpperCase() + p.side.slice(1)}{p.label ? ` · ${p.label}` : ""}
                             </option>
                           ))}
                       </select>
@@ -660,7 +693,7 @@ export function PropertiesPanel(p: Props) {
                 </div>
               </div>
             </Section>
-            <Section title="Canvas">
+            <Section title="Canvas" tab="graphics">
               <label className="toggle-row">
                 <span>Show grid</span>
                 <input
@@ -740,7 +773,7 @@ export function PropertiesPanel(p: Props) {
                 Exception
               </div>
             </Section>
-            <div className="inspector-empty">
+            <div className="inspector-empty" hidden={tab !== "properties"}>
               <Icon name="sliders" size={19} />
               <p>Select a component or connection to edit its properties.</p>
             </div>
@@ -752,5 +785,6 @@ export function PropertiesPanel(p: Props) {
         Local workspace<span>XML 1.0</span>
       </div>
     </aside>
+    </InspectorTabContext.Provider>
   );
 }

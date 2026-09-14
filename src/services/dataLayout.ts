@@ -2,21 +2,23 @@ import ELK from 'elkjs/lib/elk.bundled.js';
 import type { ElkNode } from 'elkjs/lib/elk-api';
 import type { Diagram, DiagramNode } from '../model/diagram';
 import { isContainer } from '../model/diagram';
-import { absolutePosition, nodeLayout, sortParentsFirst } from '../utils/geometry';
+import { absolutePosition, nodeLayout, sortParentsFirst, portAnchor } from '../utils/geometry';
 import { routeSignature } from '../utils/routes';
 
 /** Sugiyama layered layout: fixed field ports, crossing minimization, orthogonal routing. */
 export async function arrangeDataModel(input: Diagram): Promise<Diagram> {
   if (input.kind !== 'data-model' || !input.nodes.length) return input;
   const elk = new ELK();
-  const children: ElkNode[] = input.nodes.filter(n => !isContainer(n)).map(n => {
-    const size = nodeLayout(n);
+  const children: ElkNode[] = input.nodes.map(n => {
+    const size = nodeLayout(n, input.settings.fontSize);
     return { id: n.id, width: size.width, height: size.height,
       layoutOptions: { 'elk.portConstraints': 'FIXED_POS' },
-      ports: (n.data.fields ?? []).flatMap((f, i) => [
-        { id: `${n.id}/${f.id}:in`, x: 0, y: 64 + i * 32, width: 0, height: 0, layoutOptions: { 'elk.port.side': 'WEST' } },
-        { id: `${n.id}/${f.id}:out`, x: size.width, y: 64 + i * 32, width: 0, height: 0, layoutOptions: { 'elk.port.side': 'EAST' } },
-      ]) };
+      ports: n.data.ports.map(p => {
+        const anchor = portAnchor(n, p.id, input.nodes, p.direction, input.settings.fontSize);
+        const at = absolutePosition(n, input.nodes);
+        return { id: `${n.id}/${p.id}`, x: anchor.x - at.x, y: anchor.y - at.y, width: 0, height: 0,
+          layoutOptions: { 'elk.port.side': ({left:'WEST',right:'EAST',top:'NORTH',bottom:'SOUTH'} as const)[p.side] } };
+      }) };
   });
   const result = await elk.layout<ElkNode>({ id: 'root', children,
     layoutOptions: { 'elk.algorithm': 'layered', 'elk.direction': 'RIGHT', 'elk.edgeRouting': 'ORTHOGONAL',
@@ -35,15 +37,15 @@ export async function arrangeDataModel(input: Diagram): Promise<Diagram> {
     if (!members.length) continue;
     const x = Math.min(...members.map(c => c.position.x)) - 40;
     const y = Math.min(...members.map(c => c.position.y)) - 60;
-    n.width = Math.max(220, Math.max(...members.map(c => c.position.x + nodeLayout(c).width)) - x + 40);
-    n.height = Math.max(140, Math.max(...members.map(c => c.position.y + nodeLayout(c).height)) - y + 40);
+    n.width = Math.max(220, Math.max(...members.map(c => c.position.x + nodeLayout(c, input.settings.fontSize).width)) - x + 40);
+    n.height = Math.max(140, Math.max(...members.map(c => c.position.y + nodeLayout(c, input.settings.fontSize).height)) - y + 40);
     n.position = { x, y };
   }
   const relative = nodes.map(n => { const p = map.get(n.parentId ?? ''); return { ...n, position: p ? { x: n.position.x - p.position.x, y: n.position.y - p.position.y } : n.position }; });
   const routes = new Map(result.edges?.map(e => [e.id, e.sections?.[0]]));
   return { ...input, nodes: relative, edges: input.edges.map(e => {
-    const section = routes.get(e.id);
+    const section = input.nodes.some(n => (n.id === e.source || n.id === e.target) && isContainer(n)) ? undefined : routes.get(e.id);
     return { ...e, data: { semantic: 'data', lineStyle: 'solid', properties: {}, ...e.data,
-      route: section ? { points: [section.startPoint, ...(section.bendPoints ?? []), section.endPoint], signature: routeSignature(relative, e) } : undefined } };
+      route: section ? { points: [section.startPoint, ...(section.bendPoints ?? []), section.endPoint], signature: routeSignature(relative, e, input.settings.fontSize) } : undefined } };
   }) };
 }

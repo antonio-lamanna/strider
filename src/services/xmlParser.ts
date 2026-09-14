@@ -1,3 +1,4 @@
+import { connectionPorts } from "../model/connectionPorts";
 import { validProductArtwork } from "../model/productArtwork";
 import { validateWorkflowLayout } from "../model/layoutState";
 import { createDiagram, defaultPorts, isContainer } from "../model/diagram";
@@ -121,6 +122,7 @@ export function parseDiagram(xml: string): Diagram {
       grid: boolean(settings, "grid", true),
       snap: boolean(settings, "snap", true),
       gridSize: number(settings, "gridSize", 20, 5, 100),
+      ...(settings.hasAttribute("fontSize") ? { fontSize: number(settings, "fontSize", 14, 14, 28) } : {}),
       ...(settings.hasAttribute("gridColor") ? { gridColor: required(settings, "gridColor") } : {}),
     };
   if (d.settings.gridColor && !/^#[\da-f]{6}$/i.test(d.settings.gridColor)) throw new Error("Invalid grid color.");
@@ -157,6 +159,8 @@ export function parseDiagram(xml: string): Diagram {
     const color = el.getAttribute("color") ?? template.color;
     if (!/^#[\da-f]{6}$/i.test(color))
       throw new Error(`Invalid accent color on node ${id}. Use #RRGGBB.`);
+    const borderColor = el.getAttribute("borderColor") ?? undefined;
+    if (borderColor && !/^#[\da-f]{6}$/i.test(borderColor)) throw new Error("Invalid border color.");
     const portsElement = child(el, "ports"),
       portIds = new Set<string>();
     const ports: Port[] = portsElement
@@ -205,6 +209,7 @@ export function parseDiagram(xml: string): Diagram {
         system: el.getAttribute("system") ?? undefined,
         icon: el.getAttribute("icon") ?? template.icon,
         color,
+        ...(borderColor ? { borderColor } : {}),
         sizeMode: sizeMode as "auto" | "manual",
         properties: properties(el),
         ports,
@@ -259,6 +264,7 @@ export function parseDiagram(xml: string): Diagram {
       if (!portsElement) n.data.ports = [];
       n.zIndex ??= -10;
     }
+    n.data.ports = connectionPorts(n);
     return n;
   });
   const nodeMap = new Map(d.nodes.map((n) => [n.id, n]));
@@ -290,10 +296,10 @@ export function parseDiagram(xml: string): Diagram {
       targetHandle = el.getAttribute("targetHandle") ?? "in";
     if (
       !s.data.ports.some(
-        (p) => p.id === sourceHandle && p.direction === "output",
+        (p) => p.id === sourceHandle,
       ) ||
       !t.data.ports.some(
-        (p) => p.id === targetHandle && p.direction === "input",
+        (p) => p.id === targetHandle,
       )
     )
       throw new Error(
@@ -306,6 +312,8 @@ export function parseDiagram(xml: string): Diagram {
       !["auto", "solid", "dashed", "dotted"].includes(lineStyle)
     )
       throw new Error(`Invalid connection type or line style on ${id}.`);
+    const arrowDirection = el.getAttribute("arrowDirection") ?? undefined;
+    if (arrowDirection && !["forward", "reverse", "both"].includes(arrowDirection)) throw new Error("Invalid arrow direction.");
     const color = el.getAttribute("color") ?? undefined;
     if (color && !/^#[\da-f]{6}$/i.test(color)) throw new Error("Invalid connection color.");
     let route: import("../model/diagram").WorkflowEdgeData["route"];
@@ -326,6 +334,7 @@ export function parseDiagram(xml: string): Diagram {
       targetHandle,
       label: el.getAttribute("label") ?? "",
       data: {
+        ...(arrowDirection ? { arrowDirection: arrowDirection as import("../model/diagram").ArrowDirection } : {}),
         ...(color ? { color } : {}),
         ...(route ? { route } : {}),
         semantic: semantic as EdgeSemantic,

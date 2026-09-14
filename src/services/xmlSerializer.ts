@@ -1,3 +1,4 @@
+import { connectionPorts } from "../model/connectionPorts";
 import type { Diagram, JsonValue } from "../model/diagram";
 import { cleanDiagram } from "../model/diagram";
 
@@ -54,6 +55,7 @@ export function serializeDiagram(input: Diagram): string {
       system: n.data.system,
       icon: n.data.icon,
       color: n.data.color,
+      borderColor: n.data.borderColor,
       x: n.position.x,
       y: n.position.y,
       width: n.width,
@@ -73,7 +75,7 @@ export function serializeDiagram(input: Diagram): string {
     }
     writeProperties(e, n.data.properties);
     const ports = append(e, "ports");
-    n.data.ports.forEach((p) => append(ports, "port", { ...p }));
+    connectionPorts(n).forEach((p) => append(ports, "port", { ...p }));
   });
   const edges = append(root, "edges");
   d.edges.forEach((e) => {
@@ -86,6 +88,7 @@ export function serializeDiagram(input: Diagram): string {
       type: e.data?.semantic ?? "control",
       label: e.label ?? "",
       lineStyle: e.data?.lineStyle ?? "auto",
+      arrowDirection: e.data?.arrowDirection,
       color: e.data?.color,
     });
     if (e.data?.route) append(el, "route", {}, JSON.stringify(e.data.route));

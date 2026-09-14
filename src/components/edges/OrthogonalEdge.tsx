@@ -1,3 +1,4 @@
+import { useEditorActions } from "../canvas/EditorContext";
 import { useNodes } from "@xyflow/react";
 import { routedGeometry } from "../../utils/routes";
 import { memo } from "react";
@@ -8,8 +9,9 @@ import { dashPattern } from "../../utils/geometry";
 export const OrthogonalEdge = memo(function OrthogonalEdge(
   p: EdgeProps<DiagramEdge>,
 ) {
+  const { fontSize } = useEditorActions();
   const nodes = useNodes<import("../../model/diagram").DiagramNode>();
-  const [path, x, y] = routedGeometry({ ...p, sourceHandle: p.sourceHandleId, targetHandle: p.targetHandleId } as unknown as DiagramEdge, nodes) ?? getSmoothStepPath({
+  const [path, x, y] = routedGeometry({ ...p, sourceHandle: p.sourceHandleId, targetHandle: p.targetHandleId } as unknown as DiagramEdge, nodes, fontSize) ?? getSmoothStepPath({
     ...p,
     borderRadius: 12,
     offset: 24,
@@ -40,7 +42,8 @@ export const OrthogonalEdge = memo(function OrthogonalEdge(
         id={p.id}
         path={path}
         interactionWidth={20}
-        markerEnd={`url(#${marker})`}
+        markerStart={p.data?.arrowDirection === "reverse" || p.data?.arrowDirection === "both" ? `url(#${marker})` : undefined}
+        markerEnd={p.data?.arrowDirection !== "reverse" ? `url(#${marker})` : undefined}
         style={{
           stroke: color,
           strokeWidth: p.selected ? 2 : 1.5,
@@ -56,6 +59,8 @@ export const OrthogonalEdge = memo(function OrthogonalEdge(
           <div
             className={`edge-label nodrag nopan ${p.selected ? "selected" : ""}`}
             style={{
+              fontSize: 12 * fontSize / 14,
+              lineHeight: `${15 * fontSize / 14}px`,
               transform: `translate(-50%, -50%) translate(${x}px,${y}px)`,
             }}
           >

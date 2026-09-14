@@ -70,3 +70,12 @@ describe('independent icon modes', () => {
 
 import { flatProductIcons } from './flatProductIcons';
 it('bundles flat, colored artwork for the additional brand catalog', () => { for (const [id, artwork] of Object.entries(flatProductIcons)) { expect(findProduct(id)?.svg, id).toBe(artwork.svg); expect(artwork.svg, id).not.toMatch(/<(?:filter|linearGradient|radialGradient)\b/); expect(artwork.svg, id).toContain('fill="#' + artwork.hex + '"'); } });
+
+it('provides self-contained logos for every named product preset', () => {
+  const generic = new Set(['sql', 'rest-api', 'generic-database', 'generic-application', 'generic-cloud']);
+  for (const product of productIcons.filter(p => !generic.has(p.id))) {
+    expect(product.svg, product.id).toBeTruthy();
+    expect(productIconUri({ system: product.id, iconMode: 'product' }), product.id).toMatch(/^data:image\/svg\+xml/);
+  }
+  expect(productIconUri({ label: 'Dataverse', iconMode: 'product' })).toContain('data:image/svg+xml');
+});

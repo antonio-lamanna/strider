@@ -112,7 +112,7 @@ export function Palette({
           Systems <span>{productPresets.length}</span>
         </button>
       </div>
-      {kind !== "data-model" && <div className="library-icon-mode"><div className="sizing-switch" role="group" aria-label="Library icon mode">{(["standard", "product"] as const).map(mode => <button key={mode} aria-pressed={iconMode === mode} className={iconMode === mode ? "active" : ""} onClick={() => onIconMode(mode)}>{mode === "standard" ? "Standard" : "Product"}</button>)}</div><small>Library &amp; new elements only</small></div>}
+      {kind !== "data-model" && <div className="library-icon-mode"><div className="sizing-switch" role="group" aria-label="Library icon mode">{(["standard", "product"] as const).map(mode => <button key={mode} aria-pressed={iconMode === mode} className={iconMode === mode ? "active" : ""} onClick={() => onIconMode(mode)}>{mode === "standard" ? "Standard icons" : "Product icons"}</button>)}</div><small>Icon style for the library and new elements</small></div>}
       <div className="palette-search">
         <Search size={15} />
         <input

@@ -19,7 +19,7 @@ export function moduleExample(kind: DiagramKind) {
     const cloud = createNode({ ...architectureCategories[0].items[2], label: 'Microsoft Azure' }, { x: 620, y: 80 }); cloud.width = 510; cloud.height = 330;
     const citrix = createNode(architectureCategories[1].items[1], { x: 60, y: 120 }); citrix.parentId = client.id;
     const app = createNode({ kind: 'application', label: 'Power Platform', system: 'power-platform', icon: 'layers', color: '#8370ca' }, { x: 70, y: 100 }); app.parentId = cloud.id;
-    const db = createNode({ kind: 'database', label: 'Dataverse', icon: 'database', color: '#609b86' }, { x: 70, y: 220 }); db.parentId = cloud.id;
+    const db = createNode({ kind: 'database', label: 'Dataverse', system: 'dataverse', icon: 'database', color: '#609b86' }, { x: 70, y: 220 }); db.parentId = cloud.id;
     d.nodes = [client, cloud, citrix, app, db];
     d.edges = [{ id: 'vpn', type: 'orthogonal', source: citrix.id, sourceHandle: 'out', target: app.id, targetHandle: 'in', label: 'VPN · HTTPS', data: { semantic: 'resource', lineStyle: 'dashed', properties: {} } }, { id: 'data', type: 'orthogonal', source: app.id, sourceHandle: 'out-bottom', target: db.id, targetHandle: 'in-top', label: 'Data', data: { semantic: 'data', lineStyle: 'solid', properties: {} } }] as DiagramEdge[];
   }

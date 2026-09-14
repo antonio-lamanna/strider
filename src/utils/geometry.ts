@@ -1,3 +1,4 @@
+import { connectionPorts } from "../model/connectionPorts";
 import { routedGeometry } from "./routes";
 import { Position, getSmoothStepPath } from "@xyflow/react";
 import type { DiagramNode, DiagramEdge, Port } from "../model/diagram";
@@ -46,77 +47,40 @@ export function wrapText(
   }
   return lines.length ? lines : [""];
 }
-export function nodeLayout(n: DiagramNode) {
-  const group = isContainer(n),
-    event = isEvent(n),
+export function nodeLayout(n: DiagramNode, fontSize = 14) {
+  const scale = fontSize / 14, group = isContainer(n), event = isEvent(n),
     gateway = n.data.kind === "gateway";
+  const flags = { group, event, gateway };
   if (n.data.kind === "table") {
     const fields = n.data.fields ?? [];
-    const natural = Math.max(280, textWidth(n.data.label) + 75, ...fields.map(f => textWidth(f.name + f.dataType, 13) + 110));
-    return { width: n.data.sizeMode === "manual" ? Math.max(260, n.width ?? natural) : Math.min(620, natural), height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, 48 + Math.max(1, fields.length) * 32 + 4), labelLines: [n.data.label], descriptionLines: [], group, event, gateway };
+    const natural = Math.max(280, textWidth(n.data.label, fontSize) + 75,
+      ...fields.map(f => textWidth(f.name + f.dataType, 13 * scale) + 110));
+    return { width: n.data.sizeMode === "manual" ? Math.max(260, n.width ?? natural) : Math.min(900, natural),
+      height: Math.max(n.data.sizeMode === "manual" ? n.height ?? 0 : 0, (48 + Math.max(1, fields.length) * 32) * scale + 4),
+      labelLines: [n.data.label], descriptionLines: [], ...flags };
   }
-  if (n.data.displayMode === "icon" && !group && !event && !gateway) {
+  if (group) return { width: n.width ?? 520, height: n.height ?? 300,
+    labelLines: [n.data.label], descriptionLines: [], ...flags };
+  if (gateway) return { width: 64, height: 64,
+    labelLines: wrapText(n.data.label, 160 * scale, fontSize), descriptionLines: [], ...flags };
+  if (n.data.displayMode === "icon" && !event) {
     const width = n.data.sizeMode === "manual" ? Math.max(40, n.width ?? 64) : 64;
-    const labelLines = wrapText(n.data.label, width, 11);
-    return { width, height: n.data.sizeMode === "manual" ? Math.max(40, n.height ?? 64) : 64, labelLines, descriptionLines: [], group, event, gateway };
+    return { width, height: n.data.sizeMode === "manual" ? Math.max(40, n.height ?? 64) : 64,
+      labelLines: wrapText(n.data.label, Math.max(width, 100 * scale), 11 * scale), descriptionLines: [], ...flags };
   }
-  if (group)
-    return {
-      width: n.width ?? 520,
-      height: n.height ?? 300,
-      labelLines: [n.data.label],
-      descriptionLines: [],
-      event,
-      gateway,
-      group,
-    };
-  if (event || gateway) {
-    const width = n.data.sizeMode === 'manual' ? n.width ?? 160 : Math.min(320, Math.max(event ? 140 : 180, textWidth(n.data.label) + 70));
-    const labelLines = wrapText(n.data.label, width - 66);
-    return { width, height: Math.max(event ? 44 : 62, 24 + labelLines.length * 20 + (gateway ? 14 : 0)), labelLines, descriptionLines: [], event, gateway, group };
-  }
-  const min = event ? 64 : gateway ? 100 : 150;
-  const contentWidth = Math.max(
-    ...n.data.label.split("\n").map((s) => textWidth(s, 14, 500)),
-    n.data.kind === "ai-agent" ? 230 : 0,
-  );
-  const naturalWidth = event
-    ? Math.min(230, Math.max(64, contentWidth + 16))
-    : gateway
-      ? Math.min(250, Math.max(110, contentWidth + 20))
-      : Math.min(420, Math.max(min, contentWidth + 74));
-  const width =
-    n.data.sizeMode === "manual" ? (n.width ?? naturalWidth) : naturalWidth;
-  const labelLines = wrapText(
-    n.data.label,
-    Math.max(20, width - (event || gateway ? 12 : 72)),
-  );
-  const descriptionLines =
-    n.data.description && !event && !gateway
-      ? wrapText(n.data.description, Math.max(20, width - 72), 12, 400)
-      : [];
-  const naturalHeight = event
-    ? 56 + labelLines.length * 19
-    : gateway
-      ? 70 + labelLines.length * 19
-      : Math.max(
-          62,
-          32 +
-            labelLines.length * 20 +
-            (descriptionLines.length ? 5 + descriptionLines.length * 17 : 0),
-        ) + (n.data.kind === "ai-agent" ? 37 : 0);
-  return {
-    width,
-    height:
-      n.data.sizeMode === "manual"
-        ? (n.height ?? naturalHeight)
-        : naturalHeight,
-    labelLines,
-    descriptionLines,
-    event,
-    gateway,
-    group,
-  };
+  const contentWidth = Math.max(...n.data.label.split("\n").map(line => textWidth(line, fontSize)),
+    n.data.kind === "ai-agent" ? 230 * scale : 0);
+  const naturalWidth = Math.min(420 * scale, Math.max(event ? 140 : 150, contentWidth + (event ? 70 : 74)));
+  const width = n.data.sizeMode === "manual" ? n.width ?? naturalWidth : naturalWidth;
+  const labelLines = wrapText(n.data.label, Math.max(20, width - (event ? 66 : 72)), fontSize);
+  const descriptionLines = n.data.description && !event
+    ? wrapText(n.data.description, Math.max(20, width - 72), 12 * scale, 400) : [];
+  const naturalHeight = event ? Math.max(44, 24 + labelLines.length * 20 * scale)
+    : Math.max(62, 26 + labelLines.length * 20 * scale +
+        (descriptionLines.length ? 5 + descriptionLines.length * 17 * scale : 14 * scale)) +
+      (n.data.kind === "ai-agent" ? 37 * scale : 0);
+  return { width, height: n.data.sizeMode === "manual" ? n.height ?? naturalHeight : naturalHeight,
+    labelLines, descriptionLines, ...flags };
 }
 export function absolutePosition(
   n: DiagramNode,
@@ -184,15 +148,16 @@ export function reparentNode(
 export function containingGroup(
   n: DiagramNode,
   nodes: DiagramNode[],
+  fontSize = 14,
 ): DiagramNode | undefined {
   const p = absolutePosition(n, nodes),
-    s = nodeLayout(n),
+    s = nodeLayout(n, fontSize),
     excluded = descendants(new Set([n.id]), nodes);
   return nodes
     .filter((g) => isContainer(g) && !excluded.has(g.id))
     .filter((g) => {
       const at = absolutePosition(g, nodes),
-        size = nodeLayout(g);
+        size = nodeLayout(g, fontSize);
       return (
         p.x >= at.x + (g.data.kind === "lane" ? 48 : 8) &&
         p.y >= at.y + (g.data.kind === "lane" ? 8 : 36) &&
@@ -202,8 +167,8 @@ export function containingGroup(
     })
     .sort(
       (a, b) =>
-        nodeLayout(a).width * nodeLayout(a).height -
-        nodeLayout(b).width * nodeLayout(b).height,
+        nodeLayout(a, fontSize).width * nodeLayout(a, fontSize).height -
+        nodeLayout(b, fontSize).width * nodeLayout(b, fontSize).height,
     )[0];
 }
 export const sidePosition = {
@@ -217,22 +182,25 @@ export function portAnchor(
   portId: string | undefined | null,
   nodes: DiagramNode[],
   direction: "input" | "output",
+  fontSize = 14,
 ) {
-  const layout = nodeLayout(n),
+  const ports = connectionPorts(n);
+  const layout = nodeLayout(n, fontSize),
     at = absolutePosition(n, nodes);
-  const port: Port = n.data.ports.find((p) => p.id === portId) ??
-    n.data.ports.find((p) => p.direction === direction) ?? {
+  const port: Port = ports.find((p) => p.id === portId) ??
+    ports.find((p) => p.direction === direction) ?? {
       id: "",
       direction,
       side: direction === "input" ? "left" : "right",
       semantic: "control",
     };
-  const sameSide = n.data.ports.filter((p) => p.side === port.side),
+  const sameSide = ports.filter((p) => p.side === port.side),
     fraction =
       (sameSide.findIndex((p) => p.id === port.id) + 1) / (sameSide.length + 1);
   if (n.data.kind === "table") {
-    const index = (n.data.fields ?? []).findIndex(f => `${f.id}:in` === portId || `${f.id}:out` === portId);
-    return { x: at.x + (direction === "input" ? 0 : layout.width), y: at.y + 48 + Math.max(0, index) * 32 + 16, position: direction === "input" ? Position.Left : Position.Right };
+    const index = (n.data.fields ?? []).findIndex(f => [":in", ":out", ":top", ":bottom"].some(suffix => f.id + suffix === portId));
+    if (port.side === "top" || port.side === "bottom") return { x: at.x + layout.width * fraction, y: at.y + (port.side === "bottom" ? layout.height : 0), position: sidePosition[port.side] };
+    return { x: at.x + (port.side === "left" ? 0 : layout.width), y: at.y + (48 + Math.max(0, index) * 32 + 16) * fontSize / 14, position: sidePosition[port.side] };
   }
   const core = 0;
   const w = core || layout.width,
@@ -247,14 +215,14 @@ export function portAnchor(
     (port.side === "top" ? 0 : port.side === "bottom" ? h : h * fraction);
   return { x, y, position: sidePosition[port.side] };
 }
-export function edgeGeometry(edge: DiagramEdge, nodes: DiagramNode[]) {
-  const route = routedGeometry(edge, nodes);
+export function edgeGeometry(edge: DiagramEdge, nodes: DiagramNode[], fontSize = 14) {
+  const route = routedGeometry(edge, nodes, fontSize);
   if (route) return route;
   const source = nodes.find((n) => n.id === edge.source),
     target = nodes.find((n) => n.id === edge.target);
   if (!source || !target) return null;
-  const s = portAnchor(source, edge.sourceHandle, nodes, "output"),
-    t = portAnchor(target, edge.targetHandle, nodes, "input");
+  const s = portAnchor(source, edge.sourceHandle, nodes, "output", fontSize),
+    t = portAnchor(target, edge.targetHandle, nodes, "input", fontSize);
   return getSmoothStepPath({
     sourceX: s.x,
     sourceY: s.y,
@@ -266,18 +234,21 @@ export function edgeGeometry(edge: DiagramEdge, nodes: DiagramNode[]) {
     offset: 24,
   });
 }
-export function diagramBounds(nodes: DiagramNode[], edges: DiagramEdge[] = []) {
+export function diagramBounds(nodes: DiagramNode[], edges: DiagramEdge[] = [], fontSize = 14) {
   if (!nodes.length) return { x: 0, y: 0, width: 800, height: 500 };
   const points = nodes.flatMap((n) => {
     const p = absolutePosition(n, nodes),
-      s = nodeLayout(n);
-    return [p, { x: p.x + s.width, y: p.y + s.height + (n.data.displayMode === "icon" && !s.group && !s.event && !s.gateway ? 4 + s.labelLines.length * 14 : 0) }];
+      s = nodeLayout(n, fontSize);
+    const outside = s.gateway || (n.data.displayMode === "icon" && !s.group && !s.event);
+    const labelWidth = outside ? Math.max(s.width, ...s.labelLines.map(line => textWidth(line, s.gateway ? fontSize : 11 * fontSize / 14))) : s.width;
+    return [{ x: p.x - (labelWidth - s.width) / 2, y: p.y },
+      { x: p.x + (s.width + labelWidth) / 2, y: p.y + s.height + (outside ? 8 + s.labelLines.length * 20 * fontSize / 14 : 0) }];
   });
   edges.forEach((e) => {
-    if (routedGeometry(e, nodes)) points.push(...e.data!.route!.points);
-    const g = edgeGeometry(e, nodes);
+    if (routedGeometry(e, nodes, fontSize)) points.push(...e.data!.route!.points);
+    const g = edgeGeometry(e, nodes, fontSize);
     if (g) {
-      const half = textWidth(String(e.label ?? ""), 12, 400) / 2 + 10;
+      const half = textWidth(String(e.label ?? ""), 12 * fontSize / 14, 400) / 2 + 10;
       points.push(
         { x: g[1] - half, y: g[2] - 14 },
         { x: g[1] + half, y: g[2] + 14 },

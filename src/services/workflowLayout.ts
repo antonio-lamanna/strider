@@ -5,7 +5,7 @@ import { isContainer } from '../model/diagram';
 import { nodeLayout } from '../utils/geometry';
 import type { Orientation, WorkflowLayout, LayoutView } from "../model/layoutState";
 const signature = (d: Diagram) => JSON.stringify([d.nodes.map(n=>[n.id,n.parentId]),d.edges.map(e=>[e.id,e.source,e.target,e.sourceHandle,e.targetHandle])]);
-const snapshot = (d: Diagram): LayoutView => ({signature:signature(d), nodes:d.nodes.map(n=>({id:n.id,x:n.position.x,y:n.position.y,...(isContainer(n)?{width:nodeLayout(n).width,height:nodeLayout(n).height}:{})}))});
+const snapshot = (d: Diagram): LayoutView => ({signature:signature(d), nodes:d.nodes.map(n=>({id:n.id,x:n.position.x,y:n.position.y,...(isContainer(n)?{width:nodeLayout(n, d.settings.fontSize).width,height:nodeLayout(n, d.settings.fontSize).height}:{})}))});
 const swapped: Record<Side, Side> = {left:'top',right:'bottom',top:'left',bottom:'right'};
 /** Layout only: IDs, semantics, groups, content and handle IDs remain unchanged. */
 export async function orientWorkflow(input: Diagram, orientation: Orientation): Promise<Diagram> {
@@ -25,7 +25,7 @@ export async function orientWorkflow(input: Diagram, orientation: Orientation): 
       const ids=new Set(siblings.map(n=>n.id));
       function ancestor(id:string): string | undefined { let n=nodes.find(n=>n.id===id);const seen=new Set<string>();while(n&&!ids.has(n.id)&&n.parentId&&!seen.has(n.id)){seen.add(n.id);n=nodes.find(x=>x.id===n!.parentId);}return n&&ids.has(n.id)?n.id:undefined; }
       const edges=input.edges.flatMap(e=>{const s=ancestor(e.source),t=ancestor(e.target);return s&&t&&s!==t?[{id:e.id,sources:[s],targets:[t]}]:[];});
-      const result=await elk.layout<ElkNode>({id:parent??'root',layoutOptions:{'elk.algorithm':'layered','elk.direction':orientation==='vertical'?'DOWN':'RIGHT','elk.spacing.nodeNode':'80','elk.layered.spacing.nodeNodeBetweenLayers':'100','elk.padding':'[top=60,left=40,bottom=40,right=40]'},children:siblings.map(n=>({id:n.id,width:nodeLayout(n).width,height:nodeLayout(n).height+(n.data.displayMode==='icon'?40:0)})),edges});
+      const result=await elk.layout<ElkNode>({id:parent??'root',layoutOptions:{'elk.algorithm':'layered','elk.direction':orientation==='vertical'?'DOWN':'RIGHT','elk.spacing.nodeNode':'80','elk.layered.spacing.nodeNodeBetweenLayers':'100','elk.padding':'[top=60,left=40,bottom=40,right=40]'},children:siblings.map(n=>({id:n.id,width:nodeLayout(n, input.settings.fontSize).width,height:nodeLayout(n, input.settings.fontSize).height+(n.data.displayMode==='icon'?40:0)})),edges});
       for(const child of result.children??[]){const n=nodes.find(n=>n.id===child.id)!;n.position={x:child.x??0,y:child.y??0};}
       if(parent){const n=nodes.find(n=>n.id===parent)!;n.width=Math.max(220,result.width??220);n.height=Math.max(140,result.height??140);}
     }

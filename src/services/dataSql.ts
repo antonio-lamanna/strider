@@ -159,7 +159,7 @@ export function exportMySql(diagram: Diagram): string {
     return `CREATE TABLE ${name(n)} (\n${lines.join(',\n')}\n);`;
   });
   const groups = new Map<string, typeof diagram.edges>();
-  for (const e of diagram.edges) { const key = String(e.data?.properties.foreignKeyGroup ?? e.id); groups.set(key, [...(groups.get(key) ?? []), e]); }
+  for (const e of diagram.edges.filter(e => diagram.nodes.find(n => n.id === e.source)?.data.kind === "table" && diagram.nodes.find(n => n.id === e.target)?.data.kind === "table")) { const key = String(e.data?.properties.foreignKeyGroup ?? e.id); groups.set(key, [...(groups.get(key) ?? []), e]); }
   let count = 0;
   for (const edges of groups.values()) {
     edges.sort((a,b) => Number(a.data?.properties.foreignKeyOrder ?? 0) - Number(b.data?.properties.foreignKeyOrder ?? 0));
