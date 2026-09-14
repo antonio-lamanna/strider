@@ -59,7 +59,7 @@ describe("diagram graphics and connections", () => {
     expect(buildSvg(d).svg).toContain('polygon points="32,1 63,32 32,63 1,32"');
     expect(() => parseDiagram(serializeDiagram(d).replace('borderColor="#123456"','borderColor="red"'))).toThrow("border color");
     expect(() => parseDiagram(serializeDiagram(d).replace('fontSize="18"','fontSize="999"'))).toThrow("fontSize");
-    const t = node();
+    const t = node(); t.data.label = "Invoice processing workflow";
     expect(nodeLayout(t, 28).height).toBeGreaterThan(nodeLayout(t, 14).height);
     expect(nodeLayout(t, 28).width).toBeGreaterThan(nodeLayout(t, 14).width);
   });
