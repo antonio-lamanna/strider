@@ -8,3 +8,22 @@ dist/
 .sites-preview/
 .firebase/
 firebase-debug.log*
+
+# Local credentials and private key material
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+credentials.json
+.application_default_credentials.json
+
+# Local browser reports and editor artifacts
+test-results/
+playwright-report/
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
