@@ -21,8 +21,7 @@
 
 <br>
 
-<img src="landing/assets/workflow-dark-v4.png#gh-dark-mode-only" alt="Strider workflow workspace">
-<img src="landing/assets/workflow-light-v4.png#gh-light-mode-only" alt="Strider workflow workspace">
+<img src="landing/assets/workflow-light-v4.png" alt="Strider workflow workspace">
 
 ## Why Strider
 
@@ -40,22 +39,19 @@ It is deliberately a **design workspace, not a runtime**: Strider helps you mode
 
 Map applications, infrastructure, cloud and on-premise environments, trust boundaries and integration paths. Use standard components or product-aware iconography to keep the system landscape readable without turning the diagram into a vendor slide.
 
-<img src="landing/assets/architecture-dark-v4.png#gh-dark-mode-only" alt="Strider Architecture Designer">
-<img src="landing/assets/architecture-light-v4.png#gh-light-mode-only" alt="Strider Architecture Designer">
+<img src="landing/assets/architecture-light-v4.png" alt="Strider Architecture Designer">
 
 ### Data Model Designer
 
 Model relational structures visually with tables, fields, primary and foreign keys, cardinalities and data types. Standard and Dataverse data types can coexist in the same model, while relationships remain visible in context.
 
-<img src="landing/assets/data-model-dark-v4.png#gh-dark-mode-only" alt="Strider Data Model Designer">
-<img src="landing/assets/data-model-light-v4.png#gh-light-mode-only" alt="Strider Data Model Designer">
+<img src="landing/assets/data-model-light-v4.png" alt="Strider Data Model Designer">
 
 ### Workflow Designer
 
 Design process logic across human tasks, automated tasks, events, gateways, scripts, systems and AI agents. Switch between horizontal and vertical layouts without changing the underlying workflow.
 
-<img src="landing/assets/workflow-dark-v4.png#gh-dark-mode-only" alt="Strider Workflow Designer">
-<img src="landing/assets/workflow-light-v4.png#gh-light-mode-only" alt="Strider Workflow Designer">
+<img src="landing/assets/workflow-light-v4.png" alt="Strider Workflow Designer">
 
 ## Lightweight by design
 
