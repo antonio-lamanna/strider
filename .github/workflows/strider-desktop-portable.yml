@@ -1,0 +1,50 @@
+name: Build Strider Desktop portable ZIP
+
+on:
+  push:
+    branches:
+      - feature/strider-moria-desktop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-portable:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Strider Desktop branch
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Strider dependencies
+        run: npm ci
+      - name: Install Electron builder
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Build Strider for local file execution
+        run: npm run build -- --mode desktop
+      - name: Build Windows portable executable
+        working-directory: desktop
+        run: npx electron-builder --win portable --x64 --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Assemble START_STRIDER package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "portable/Strider_Desktop" | Out-Null
+          $exe = Get-ChildItem "release/strider-desktop" -Filter "*.exe" | Select-Object -First 1
+          if (-not $exe) { throw "Portable executable was not generated" }
+          Copy-Item $exe.FullName "portable/Strider_Desktop/Strider-Desktop.exe"
+          Copy-Item "desktop/START_STRIDER.cmd" "portable/Strider_Desktop/START_STRIDER.cmd"
+          Copy-Item "desktop/README_PORTABLE.txt" "portable/Strider_Desktop/LEGGIMI.txt"
+          Compress-Archive -Path "portable/Strider_Desktop" -DestinationPath "Strider_Desktop_START.zip" -Force
+      - name: Upload runnable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Strider_Desktop_START
+          path: Strider_Desktop_START.zip
+          retention-days: 30
