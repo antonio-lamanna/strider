@@ -1,0 +1,43 @@
+{
+  "name": "strider-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Strider desktop — MORIA-inspired shell",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "pack": "npm run build:web && electron-builder --dir",
+    "dist": "npm run build:web && electron-builder",
+    "build:web": "npm run build --prefix .."
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.antoniolamanna.strider.desktop",
+    "productName": "Strider Desktop",
+    "asar": true,
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "moria-desktop.css",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../dist",
+        "to": "web"
+      }
+    ],
+    "directories": {
+      "output": "../release/strider-desktop"
+    },
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "artifactName": "Strider-Desktop-${version}-${arch}.${ext}"
+    }
+  }
+}
