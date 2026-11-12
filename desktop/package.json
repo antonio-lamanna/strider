@@ -8,7 +8,7 @@
     "start": "electron .",
     "pack": "npm run build:web && electron-builder --dir",
     "dist": "npm run build:web && electron-builder",
-    "build:web": "npm run build --prefix .."
+    "build:web": "npm run build --prefix .. -- --mode desktop"
   },
   "devDependencies": {
     "electron": "^35.7.5",
@@ -26,7 +26,7 @@
     ],
     "extraResources": [
       {
-        "from": "../dist",
+        "from": "../dist/desktop",
         "to": "web"
       }
     ],
