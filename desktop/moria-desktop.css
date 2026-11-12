@@ -1,0 +1,56 @@
+/* Strider desktop skin — derived from MORIA's compact, VS Code / Fluent-like visual language.
+   Only presentation variables and shell geometry are changed. Strider's editor and project model remain intact. */
+:root, :root[data-theme="dark"] {
+  font-family: 'Segoe UI Variable','Segoe UI',Arial,sans-serif !important;
+  --shell:#1f1f1f; --surface:#252526; --workspace-bg:#181818;
+  --canvas:#1b1b1b; --soft:#2d2d30; --hover:#333337;
+  --border:#343434; --border-strong:#484848;
+  --ink:#e6e6e6; --muted:#a6a6a6; --light-text:#858585;
+  --focus:#0078d4; --primary:#0078d4; --primary-ink:#fff;
+  --brand-accent:#0078d4; --brand-ink:#ececec;
+  --focus-soft:rgba(0,120,212,.18); --node-surface:#252526;
+  --node-border:#454545; --shadow:0 2px 12px #0003;
+  --rail-width:48px; --palette-width:252px; --panel-width:290px;
+  color-scheme:dark;
+}
+:root[data-theme="light"] {
+  font-family:'Segoe UI Variable','Segoe UI',Arial,sans-serif !important;
+  --shell:#f3f3f3;--surface:#fff;--workspace-bg:#e9e9e9;--canvas:#fafafa;
+  --soft:#e8e8e8;--hover:#dedede;--border:#d5d5d5;--border-strong:#b4b4b4;
+  --ink:#202020;--muted:#5d5d5d;--light-text:#777;
+  --focus:#0078d4;--primary:#0078d4;--primary-ink:#fff;
+  --brand-accent:#0078d4;--brand-ink:#202020;--focus-soft:rgba(0,120,212,.1);
+  --node-surface:#fff;--node-border:#c8c8c8;--shadow:0 2px 8px #0001;
+  --rail-width:48px;--palette-width:252px;--panel-width:290px;
+}
+body{font-size:12px}
+.app-shell{background:var(--workspace-bg)}
+.top-toolbar{height:42px;min-height:42px;padding:0 13px;gap:11px;background:var(--shell)}
+.brand{width:104px}.diagram-title input{font-size:12px}
+.toolbar-actions .primary-button,.top-toolbar .primary-button{height:28px;min-height:28px;border-radius:4px;box-shadow:none}
+.workspace-bar{min-height:36px;padding:0 8px;gap:8px}
+.diagram-tabs{min-height:36px;padding:3px 0;gap:2px}
+.diagram-tab,.diagram-tab.active{border-radius:4px;min-height:29px;box-shadow:none}
+.diagram-tab.active{background:var(--surface);border-color:var(--border)}
+.diagram-tab.active::after{display:block;background:var(--focus);height:1px}
+.diagram-tab > button:first-child{font-size:12px;padding:5px 8px}
+.workspace-rail{padding-top:10px;gap:4px;background:var(--workspace-bg)}
+.workspace-rail button{border-radius:4px;width:36px;height:36px}
+.workspace-rail button[aria-pressed="true"]{color:var(--ink);background:var(--soft);box-shadow:inset 2px 0 var(--focus)}
+.workspace-rail .rail-new{border-radius:4px;box-shadow:none}
+.panel{background:var(--shell)}.panel-heading{height:36px;min-height:36px;padding:0 13px;font-size:11px;text-transform:uppercase;letter-spacing:.075em}
+.palette-tabs{padding:0 10px;gap:14px}.palette-tabs button{font-size:11px}
+.palette-search{border-radius:4px;background:var(--soft);margin:7px 9px}
+.palette-item{border-radius:4px;height:34px;font-size:12px}.palette-icon{border-radius:4px}
+.canvas-topline{top:10px;left:12px;right:12px}
+.canvas-breadcrumb,.canvas-top-actions .subtle-button{border-radius:4px;box-shadow:none}
+.canvas-dock{border-radius:6px;padding:3px;box-shadow:none}
+.canvas-dock .floating-bar button{border-radius:4px}
+.orientation-switch{border-radius:5px;box-shadow:none}
+.status-bar{background:#007acc !important;color:#fff !important;border-top:0 !important}
+.status-bar *{color:inherit !important}
+.dropdown,.modal-panel,.flow-card,.workflow-node,.table-node{box-shadow:0 1px 4px #0002}
+.dropdown{border-radius:5px}.dropdown button{border-radius:3px}
+.primary-button,.secondary-button,.text-button,.icon-button{border-radius:4px}
+:root[data-theme="dark"] .react-flow__background{opacity:.55}
+:root[data-theme="dark"] .react-flow__controls{background:var(--surface);border-color:var(--border)}
